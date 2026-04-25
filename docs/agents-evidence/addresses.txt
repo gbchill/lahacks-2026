@@ -1,0 +1,47 @@
+======================================================================
+ORISION — Agent Registration Info
+======================================================================
+
+PARSER
+  Address:     agent1qwdpyg7uclqkrmjzztce7g42wequcngzrzv0u83yqdm6rn36axqtqn9al4d
+  Seed:        orision-parser-agent-v1-lahacks2026
+  Description: OCR + document classification via Gemini Vision. Receives a Cloudinary photo URL and returns structured text with document type and confidence.
+  Tags:        ['orision', 'immigrant-families', 'document-translation', 'parser']
+  Agentverse:  https://agentverse.ai/agents/agent1qwdpyg7uclqkrmjzztce7g42wequcngzrzv0u83yqdm6rn36axqtqn9al4d
+
+CONTEXT
+  Address:     agent1qwfwy6385dqlnc3tvraszd8cvrleln5lvn9264rc40v98s8uhegkcgrpc9h
+  Seed:        orision-context-agent-v1-lahacks2026
+  Description: Embeds document text, runs Atlas Vector Search to find similar past documents for the same family, builds family history context string.
+  Tags:        ['orision', 'immigrant-families', 'document-translation', 'context']
+  Agentverse:  https://agentverse.ai/agents/agent1qwfwy6385dqlnc3tvraszd8cvrleln5lvn9264rc40v98s8uhegkcgrpc9h
+
+DRAFTER
+  Address:     agent1q035yyxqhft00lnreahnmf8avk2x3wjfzdrqudw2ve2stcnn72a52usls5w
+  Seed:        orision-drafter-agent-v1-lahacks2026
+  Description: Generates plain-English explanation of a government document at 6th-grade reading level, enriched with family history context.
+  Tags:        ['orision', 'immigrant-families', 'document-translation', 'drafter']
+  Agentverse:  https://agentverse.ai/agents/agent1q035yyxqhft00lnreahnmf8avk2x3wjfzdrqudw2ve2stcnn72a52usls5w
+
+TRANSLATOR
+  Address:     agent1qtdat5tcj7g5l88claw9m2p6fv9zul7s0dcrq4vez00mllcrryjr5dxudmr
+  Seed:        orision-translator-agent-v1-lahacks2026
+  Description: Translates English explanation to Simplified Chinese (zh-CN) with warm, respectful tone appropriate for immigrant families.
+  Tags:        ['orision', 'immigrant-families', 'document-translation', 'translator']
+  Agentverse:  https://agentverse.ai/agents/agent1qtdat5tcj7g5l88claw9m2p6fv9zul7s0dcrq4vez00mllcrryjr5dxudmr
+
+ORCHESTRATOR
+  Address:     agent1qf49x3aw3yfpm9ul5djvj4j5jyewjw36fz89yv33smdzw4k7zsuuy3jfsc4
+  Seed:        orision-orchestrator-agent-v1-lahacks2026
+  Description: Chains Parser -> Context -> Drafter -> Translator agents sequentially. Bridges FastAPI HTTP requests to the uAgent message network.
+  Tags:        ['orision', 'immigrant-families', 'document-translation', 'orchestrator']
+  Agentverse:  https://agentverse.ai/agents/agent1qf49x3aw3yfpm9ul5djvj4j5jyewjw36fz89yv33smdzw4k7zsuuy3jfsc4
+
+======================================================================
+AGENTVERSE REGISTRATION
+======================================================================
+1. Go to https://agentverse.ai
+2. For each agent above, click My Agents -> Register Agent
+3. Enter the address and description
+4. Verify Chat Protocol shows green in the protocol list
+5. Test ASI:One discoverability at https://asi1.ai

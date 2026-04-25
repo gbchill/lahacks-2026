@@ -1,5 +1,6 @@
 """Document endpoints — photo → OCR → translation → audio explanation."""
 import asyncio
+import json
 import logging
 import time
 import uuid
@@ -16,6 +17,9 @@ from services.gemini import (
     translate_to_mandarin,
 )
 from services.mongo import find_similar, save_document
+
+import agents.bridge as bridge
+from agents.messages import OrchestrateRequest
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -149,4 +153,116 @@ async def explain_document(
         raise HTTPException(
             status_code=500,
             detail={"step": current_step, "error": str(exc), "document_id": doc_id},
+        )
+
+
+@router.post("/explain-via-agents", response_model=ExplainResponse)
+async def explain_document_via_agents(
+    photo: UploadFile = File(...),
+    user_id: str = Form(default="demo-user-1"),
+    target_language: str = Form(default="zh-CN"),
+) -> ExplainResponse:
+    """Agent-powered pipeline: photo → Parser → Context → Drafter → Translator → audio."""
+    pipeline_start = time.perf_counter()
+    timing: dict[str, float] = {}
+    doc_id = str(uuid.uuid4())
+    correlation_id = str(uuid.uuid4())
+
+    try:
+        photo_bytes = await photo.read()
+
+        # 1. Cloudinary upload + enhance (before agents — pass URL only)
+        t0 = time.perf_counter()
+        upload_result = await upload_photo(photo_bytes, user_id)
+        timing["cloudinary_upload"] = round((time.perf_counter() - t0) * 1000, 1)
+        public_id = upload_result["public_id"]
+        original_photo_url = upload_result["secure_url"]
+        enhanced_photo_url = enhance_for_ocr(public_id)
+
+        # 2. Enqueue for orchestrator agent
+        loop = asyncio.get_event_loop()
+        fut: asyncio.Future = loop.create_future()
+        bridge.pending_futures[correlation_id] = fut
+
+        req = OrchestrateRequest(
+            correlation_id=correlation_id,
+            image_url=enhanced_photo_url,
+            user_id=user_id,
+            doc_id=doc_id,
+            target_language=target_language,
+        )
+        await bridge.request_queue.put((correlation_id, req))
+
+        # 3. Wait for agent chain to complete
+        try:
+            result = await asyncio.wait_for(fut, timeout=120.0)
+        except asyncio.TimeoutError:
+            bridge.pending_futures.pop(correlation_id, None)
+            raise HTTPException(status_code=504, detail="Agent pipeline timed out")
+
+        timing["agent_pipeline"] = round((time.perf_counter() - pipeline_start) * 1000, 1)
+
+        # 4. TTS on translated text
+        t0 = time.perf_counter()
+        audio_bytes = await synthesize_speech(
+            result.translated_explanation, target_language
+        )
+        timing["tts"] = round((time.perf_counter() - t0) * 1000, 1)
+
+        # 5. Audio upload + MongoDB save in parallel
+        t0 = time.perf_counter()
+        key_facts_raw = json.loads(result.key_facts_json) if result.key_facts_json else {}
+        audio_url, _ = await asyncio.gather(
+            upload_audio(audio_bytes, user_id, doc_id),
+            save_document(
+                user_id,
+                {
+                    "document_id": doc_id,
+                    "document_type": result.document_type,
+                    "english_explanation": result.english_explanation,
+                    "translated_explanation": result.translated_explanation,
+                    "target_language": target_language,
+                    "audio_url": "",
+                    "original_photo_url": original_photo_url,
+                    "enhanced_photo_url": enhanced_photo_url,
+                    "key_facts": key_facts_raw,
+                },
+                embedding=result.embedding if result.embedding else None,
+            ),
+        )
+        timing["audio_upload"] = round((time.perf_counter() - t0) * 1000, 1)
+        timing["total"] = round((time.perf_counter() - pipeline_start) * 1000, 1)
+
+        logger.info(
+            "Agent pipeline complete: doc_id=%s type=%s total_ms=%.1f",
+            doc_id,
+            result.document_type,
+            timing["total"],
+        )
+
+        return ExplainResponse(
+            document_id=doc_id,
+            document_type=result.document_type,
+            english_explanation=result.english_explanation,
+            translated_explanation=result.translated_explanation,
+            target_language=target_language,
+            audio_url=audio_url,
+            original_photo_url=original_photo_url,
+            enhanced_photo_url=enhanced_photo_url,
+            key_facts=KeyFacts(
+                deadline=key_facts_raw.get("deadline"),
+                amount_due=key_facts_raw.get("amount_due"),
+                action_required=key_facts_raw.get("action_required"),
+            ),
+            similar_past_documents=[],
+            pipeline_timing_ms=PipelineTiming(**timing),
+        )
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Agent pipeline failed doc_id=%s", doc_id)
+        raise HTTPException(
+            status_code=500,
+            detail={"error": str(exc), "document_id": doc_id},
         )

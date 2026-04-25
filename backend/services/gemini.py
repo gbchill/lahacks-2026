@@ -19,9 +19,20 @@ def _get_client() -> genai.Client:
     global _client
     if _client is None:
         api_key = os.getenv("GEMINI_API_KEY")
-        if not api_key:
-            raise RuntimeError("GEMINI_API_KEY not set")
-        _client = genai.Client(api_key=api_key)
+        gcp_project = os.getenv("GOOGLE_CLOUD_PROJECT")
+        if gcp_project:
+            # Vertex AI mode — uses Application Default Credentials
+            _client = genai.Client(
+                vertexai=True,
+                project=gcp_project,
+                location=os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1"),
+            )
+            logger.info("Gemini client: Vertex AI (project=%s)", gcp_project)
+        elif api_key:
+            _client = genai.Client(api_key=api_key)
+            logger.info("Gemini client: API key")
+        else:
+            raise RuntimeError("Set GEMINI_API_KEY or GOOGLE_CLOUD_PROJECT")
     return _client
 
 
