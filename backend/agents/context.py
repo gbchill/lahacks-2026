@@ -17,9 +17,13 @@ from agents.messages import ContextRequest, ContextBundle
 from services.gemini import embed_text
 from services.mongo import find_similar
 
+_endpoint = os.getenv("AGENT_ENDPOINT", "http://144.202.31.14:8001")
+
 context_agent = Agent(
     name="context",
     seed=os.getenv("CONTEXT_AGENT_SEED", "orision-context-agent-v1-lahacks2026"),
+    endpoint=[f"{_endpoint}/submit"],
+    agentverse=True,
 )
 
 # ── Chat Protocol (required for Agentverse / ASI:One) ────────────────────────
@@ -45,7 +49,7 @@ async def handle_chat_ack(ctx: Context, sender: str, msg: ChatAcknowledgement):
     pass
 
 
-context_agent.include(chat_proto)
+context_agent.include(chat_proto, publish_manifest=True)
 
 # ── Pipeline Protocol ────────────────────────────────────────────────────────
 

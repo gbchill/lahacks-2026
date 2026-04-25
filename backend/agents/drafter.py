@@ -13,9 +13,13 @@ from uagents_core.contrib.protocols.chat import (
 from agents.messages import DraftRequest, ExplanationDraft
 from services.gemini import explain_in_plain_english
 
+_endpoint = os.getenv("AGENT_ENDPOINT", "http://144.202.31.14:8001")
+
 drafter = Agent(
     name="drafter",
     seed=os.getenv("DRAFTER_AGENT_SEED", "orision-drafter-agent-v1-lahacks2026"),
+    endpoint=[f"{_endpoint}/submit"],
+    agentverse=True,
 )
 
 # ── Chat Protocol (required for Agentverse / ASI:One) ────────────────────────
@@ -41,7 +45,7 @@ async def handle_chat_ack(ctx: Context, sender: str, msg: ChatAcknowledgement):
     pass
 
 
-drafter.include(chat_proto)
+drafter.include(chat_proto, publish_manifest=True)
 
 # ── Pipeline Protocol ────────────────────────────────────────────────────────
 

@@ -12,9 +12,13 @@ from uagents_core.contrib.protocols.chat import (
 from agents.messages import TranslateRequest, TranslatedExplanation
 from services.gemini import translate_text
 
+_endpoint = os.getenv("AGENT_ENDPOINT", "http://144.202.31.14:8001")
+
 translator = Agent(
     name="translator",
     seed=os.getenv("TRANSLATOR_AGENT_SEED", "orision-translator-agent-v1-lahacks2026"),
+    endpoint=[f"{_endpoint}/submit"],
+    agentverse=True,
 )
 
 # ── Chat Protocol (required for Agentverse / ASI:One) ────────────────────────
@@ -40,7 +44,7 @@ async def handle_chat_ack(ctx: Context, sender: str, msg: ChatAcknowledgement):
     pass
 
 
-translator.include(chat_proto)
+translator.include(chat_proto, publish_manifest=True)
 
 # ── Pipeline Protocol ────────────────────────────────────────────────────────
 

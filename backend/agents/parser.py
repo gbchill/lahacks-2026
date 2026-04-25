@@ -12,9 +12,13 @@ from uagents_core.contrib.protocols.chat import (
 from agents.messages import ParseRequest, ParsedDocument
 from services.gemini import extract_text_from_image
 
+_endpoint = os.getenv("AGENT_ENDPOINT", "http://144.202.31.14:8001")
+
 parser = Agent(
     name="parser",
     seed=os.getenv("PARSER_AGENT_SEED", "orision-parser-agent-v1-lahacks2026"),
+    endpoint=[f"{_endpoint}/submit"],
+    agentverse=True,
 )
 
 # ── Chat Protocol (required for Agentverse / ASI:One) ────────────────────────
@@ -40,7 +44,7 @@ async def handle_chat_ack(ctx: Context, sender: str, msg: ChatAcknowledgement):
     pass
 
 
-parser.include(chat_proto)
+parser.include(chat_proto, publish_manifest=True)
 
 # ── Pipeline Protocol ────────────────────────────────────────────────────────
 

@@ -55,9 +55,13 @@ def _translator_addr():
     from agents.translator import translator
     return translator.address
 
+_endpoint = os.getenv("AGENT_ENDPOINT", "http://144.202.31.14:8001")
+
 orchestrator = Agent(
     name="orchestrator",
     seed=os.getenv("ORCHESTRATOR_AGENT_SEED", "orision-orchestrator-agent-v1-lahacks2026"),
+    endpoint=[f"{_endpoint}/submit"],
+    agentverse=True,
 )
 
 # ── Chat Protocol ────────────────────────────────────────────────────────────
@@ -82,7 +86,7 @@ async def handle_chat_ack(ctx: Context, sender: str, msg: ChatAcknowledgement):
     pass
 
 
-orchestrator.include(chat_proto)
+orchestrator.include(chat_proto, publish_manifest=True)
 
 # ── Pipeline dispatch loop ───────────────────────────────────────────────────
 
