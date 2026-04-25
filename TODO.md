@@ -61,8 +61,8 @@ A box is only checked when the feature works AND the evidence is saved.
   - [x] Drafter Agent — turns facts + context into plain-language explanation
   - [x] Translator Agent — converts to target language at 6th-grade level
 - [x] Mandatory Chat Protocol implemented on ALL 4 agents
-- [ ] All 4 agents registered on Agentverse (not just running locally) — **MANUAL: do on agentverse.ai**
-- [ ] All 4 agents discoverable via ASI:One search
+- [x] All 4 agents registered on Agentverse (Parser, Context, Drafter, Translator — all active)
+- [ ] All 4 agents discoverable via ASI:One search — **check now at asi1.ai**
 - [x] Agent orchestration triggered by `/documents/explain-via-agents` endpoint
 - [x] Agents hosted on Vultr (144.202.31.14)
 
@@ -271,7 +271,7 @@ A box is only checked when the feature works AND the evidence is saved.
 1. ~~**Cloudinary console** — create `orision_unsigned` upload preset~~ DONE
 2. ~~**MCP test** — add to Claude Desktop, test, screenshot~~ DONE
 3. ~~**Vultr** — deployed at 144.202.31.14~~ DONE
-4. **Agentverse** — register 4 agents on agentverse.ai (30-45 min)
+4. ~~**Agentverse** — all 4 agents registered and active~~ DONE
 5. **ASI:One** — verify agent discoverability, screenshot (10 min)
 6. **OmegaClaw** — register skill after Agentverse done (30 min)
 7. **Run A/B script** — `python backend/scripts/cloudinary_ab_test.py <image>` for Cloudinary evidence
