@@ -59,11 +59,44 @@ async def save_document(
 async def find_similar(
     user_id: str, embedding: list[float] | None = None, k: int = 5
 ) -> list[dict]:
-    # TODO: wire Atlas Vector Search using the embedding parameter
     db = _get_db()
     if db is None:
         return []
     try:
+        if embedding:
+            # Atlas Vector Search — requires index "vector_index" on documents collection.
+            # Create in Atlas UI: type=vectorSearch, path=embedding,
+            # numDimensions=3072, similarity=cosine, filter path=user_id.
+            pipeline = [
+                {
+                    "$vectorSearch": {
+                        "index": "vector_index",
+                        "path": "embedding",
+                        "queryVector": embedding,
+                        "numCandidates": max(k * 10, 100),
+                        "limit": k,
+                        "filter": {"user_id": user_id},
+                    }
+                },
+                {
+                    "$project": {
+                        "_id": {"$toString": "$_id"},
+                        "document_id": 1,
+                        "document_type": 1,
+                        "english_explanation": 1,
+                        "created_at": 1,
+                        "score": {"$meta": "vectorSearchScore"},
+                    }
+                },
+            ]
+            cursor = db["documents"].aggregate(pipeline)
+            docs = await cursor.to_list(length=k)
+            logger.info(
+                "Atlas Vector Search: found %d similar docs for user=%s", len(docs), user_id
+            )
+            return docs
+
+        # Recency fallback when no embedding provided
         cursor = (
             db["documents"]
             .find({"user_id": user_id})
