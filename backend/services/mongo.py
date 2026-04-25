@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime, timezone
 
+import certifi
 import motor.motor_asyncio
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,12 @@ def _get_db() -> motor.motor_asyncio.AsyncIOMotorDatabase | None:
         logger.warning("MONGODB_URI not set — MongoDB disabled, pipeline will still run")
         return None
     db_name = os.getenv("MONGODB_DB_NAME", "orision")
-    _client = motor.motor_asyncio.AsyncIOMotorClient(uri)
+    _client = motor.motor_asyncio.AsyncIOMotorClient(
+        uri,
+        tls=True,
+        tlsCAFile=certifi.where(),
+        serverSelectionTimeoutMS=5000,
+    )
     _db = _client[db_name]
     logger.info("MongoDB connected: db=%s", db_name)
     return _db

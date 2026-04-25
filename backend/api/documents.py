@@ -1,4 +1,5 @@
 """Document endpoints — photo → OCR → translation → audio explanation."""
+import asyncio
 import logging
 import time
 import uuid
@@ -46,23 +47,22 @@ async def explain_document(
         # 2. Build enhanced OCR URL
         enhanced_photo_url = enhance_for_ocr(public_id)
 
-        # 3. OCR via Gemini Vision
-        current_step = "ocr"
+        # 3. OCR + context fetch in parallel
+        current_step = "ocr+context"
         t0 = time.perf_counter()
-        ocr_result = await extract_text_from_image(enhanced_photo_url)
+        ocr_result, past_docs = await asyncio.gather(
+            extract_text_from_image(enhanced_photo_url),
+            find_similar(user_id),
+        )
         timing["ocr"] = round((time.perf_counter() - t0) * 1000, 1)
         raw_text = ocr_result.get("raw_text", "")
         document_type = ocr_result.get("document_type_guess", "other")
-
-        # 4. Fetch recent docs for family context
-        current_step = "context"
-        past_docs = await find_similar(user_id)
         family_history = "; ".join(
             f"{d.get('document_type', 'unknown')} from {d.get('created_at', '?')}"
             for d in past_docs[:3]
         )
 
-        # 5. Plain-English explanation
+        # 4. Plain-English explanation
         current_step = "explanation"
         t0 = time.perf_counter()
         explain_result = await explain_in_plain_english(
@@ -72,46 +72,44 @@ async def explain_document(
         english_explanation = explain_result.get("explanation", "")
         key_facts_raw = explain_result.get("key_facts", {})
 
-        # 6. Translate to target language
+        # 5. Translate to target language
         current_step = "translation"
         t0 = time.perf_counter()
         translated_text = await translate_to_mandarin(english_explanation, document_type)
         timing["translation"] = round((time.perf_counter() - t0) * 1000, 1)
 
-        # 7. TTS via ElevenLabs
-        current_step = "tts"
+        # 6. TTS + embedding in parallel
+        current_step = "tts+embedding"
         t0 = time.perf_counter()
-        audio_bytes = await synthesize_speech(translated_text, target_language)
+        audio_bytes, embedding = await asyncio.gather(
+            synthesize_speech(translated_text, target_language),
+            embed_text(english_explanation + " " + translated_text),
+        )
         timing["tts"] = round((time.perf_counter() - t0) * 1000, 1)
 
-        # 8. Upload audio to Cloudinary
-        current_step = "audio_upload"
+        # 7. Audio upload + MongoDB save in parallel
+        current_step = "upload+save"
         t0 = time.perf_counter()
-        audio_url = await upload_audio(audio_bytes, user_id, doc_id)
-        timing["audio_upload"] = round((time.perf_counter() - t0) * 1000, 1)
-
-        # 9. Embed for future vector search
-        current_step = "embedding"
-        embedding = await embed_text(english_explanation + " " + translated_text)
-
-        # 10. Save to MongoDB
-        current_step = "mongo_save"
-        await save_document(
-            user_id,
-            {
-                "document_id": doc_id,
-                "document_type": document_type,
-                "raw_text": raw_text,
-                "english_explanation": english_explanation,
-                "translated_explanation": translated_text,
-                "target_language": target_language,
-                "audio_url": audio_url,
-                "original_photo_url": original_photo_url,
-                "enhanced_photo_url": enhanced_photo_url,
-                "key_facts": key_facts_raw,
-            },
-            embedding=embedding if embedding else None,
+        audio_url, _ = await asyncio.gather(
+            upload_audio(audio_bytes, user_id, doc_id),
+            save_document(
+                user_id,
+                {
+                    "document_id": doc_id,
+                    "document_type": document_type,
+                    "raw_text": raw_text,
+                    "english_explanation": english_explanation,
+                    "translated_explanation": translated_text,
+                    "target_language": target_language,
+                    "audio_url": "",
+                    "original_photo_url": original_photo_url,
+                    "enhanced_photo_url": enhanced_photo_url,
+                    "key_facts": key_facts_raw,
+                },
+                embedding=embedding if embedding else None,
+            ),
         )
+        timing["audio_upload"] = round((time.perf_counter() - t0) * 1000, 1)
 
         timing["total"] = round((time.perf_counter() - pipeline_start) * 1000, 1)
 
