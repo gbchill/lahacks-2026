@@ -1,0 +1,23 @@
+{
+  "document_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "document_type": "medicaid",
+  "english_explanation": "This letter is about renewing your Medicaid health insurance. You need to fill out the enclosed form and mail it back by May 15, 2026. If you don't respond by the deadline, your coverage will end on June 1, 2026. You can also renew online at your state's Medicaid portal.",
+  "translated_explanation": "这封信是关于您的 Medicaid 医疗保险续期。您需要填写随信附上的表格，并在 2026 年 5 月 15 日之前寄回。如果您未在截止日期前回复，您的保险将于 2026 年 6 月 1 日终止。您也可以在州政府的 Medicaid 网站上在线续期。",
+  "target_language": "zh-CN",
+  "audio_url": "https://res.cloudinary.com/dyyjuq6gr/video/upload/orision/demo-user-1/audio/explanation_a1b2c3d4.mp3",
+  "original_photo_url": "https://res.cloudinary.com/dyyjuq6gr/image/upload/orision/demo-user-1/photos/abc123.jpg",
+  "enhanced_photo_url": "https://res.cloudinary.com/dyyjuq6gr/image/upload/e_improve/e_sharpen:100/a_auto_right/e_grayscale/q_auto:best/f_auto/orision/demo-user-1/photos/abc123.jpg",
+  "key_facts": {
+    "deadline": "May 15, 2026",
+    "amount_due": null,
+    "action_required": "Fill out and mail the renewal form"
+  },
+  "similar_past_documents": [],
+  "pipeline_timing_ms": {
+    "cloudinary_upload": 1250.3,
+    "agent_pipeline": 18432.7,
+    "tts": 3210.5,
+    "audio_upload": 890.2,
+    "total": 23783.7
+  }
+}
