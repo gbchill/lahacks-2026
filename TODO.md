@@ -30,7 +30,7 @@ A box is only checked when the feature works AND the evidence is saved.
 
 #### Requirements (ALL needed)
 - [x] Used `create-cloudinary-react` as starter — screenshot saved
-- [ ] Unsigned upload preset created in Cloudinary console (`orision_unsigned`) — **DO NOW**
+- [x] Unsigned upload preset created in Cloudinary console (`orision_unsigned`)
 - [x] Preset added to `.env` as `VITE_CLOUDINARY_UPLOAD_PRESET` — set to `orision_unsigned`
 - [x] At least 4 Cloudinary transformations used in document pipeline:
   - [x] `e_improve` — auto contrast/exposure
@@ -268,7 +268,7 @@ A box is only checked when the feature works AND the evidence is saved.
 
 ## WHAT TO DO RIGHT NOW (priority order)
 
-1. **Cloudinary console** — create `orision_unsigned` upload preset (5 min)
+1. ~~**Cloudinary console** — create `orision_unsigned` upload preset~~ DONE
 2. **MCP test** — add to Claude Desktop, test, screenshot (15 min)
 3. **Vultr** — provision instance, run `./backend/scripts/deploy.sh <IP>` (1-2 hr)
 4. **Agentverse** — register 4 agents on agentverse.ai (30-45 min)
