@@ -97,11 +97,11 @@ A box is only checked when the feature works AND the evidence is saved.
 - [x] Exposes tool: `explain_government_letter(letter_text, target_language, user_id?) -> dict`
 - [x] Exposes tool: `search_family_documents(query_text, user_id, k)`
 - [ ] MCP server runs on Vultr — **needs Vultr deploy**
-- [ ] Successfully tested with at least one external MCP client (Claude Desktop OR Devin) — **DO NOW**
+- [x] Successfully tested with at least one external MCP client (Claude Desktop) — screenshot saved
 - [x] Connection config documented in `backend/mcp_server/README.md`
 
 #### Evidence for Devpost
-- [ ] Screenshot of Claude Desktop calling `explain_government_letter` — **DO NOW**
+- [x] Screenshot of Claude Desktop calling `explain_government_letter` — saved to docs/evidence/
 - [ ] Sample input/output pair captured
 - [ ] Section in Devpost: "How agents from outside Orision can use our context"
 
@@ -269,7 +269,7 @@ A box is only checked when the feature works AND the evidence is saved.
 ## WHAT TO DO RIGHT NOW (priority order)
 
 1. ~~**Cloudinary console** — create `orision_unsigned` upload preset~~ DONE
-2. **MCP test** — add to Claude Desktop, test, screenshot (15 min)
+2. ~~**MCP test** — add to Claude Desktop, test, screenshot~~ DONE
 3. **Vultr** — provision instance, run `./backend/scripts/deploy.sh <IP>` (1-2 hr)
 4. **Agentverse** — register 4 agents on agentverse.ai (30-45 min)
 5. **ASI:One** — verify agent discoverability, screenshot (10 min)
