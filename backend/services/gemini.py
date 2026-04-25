@@ -30,7 +30,7 @@ async def extract_text_from_image(image_url: str) -> dict:
         model=MODEL,
         contents=[
             types.Part.from_uri(file_uri=image_url, mime_type="image/jpeg"),
-            types.Part.from_text(
+            types.Part.from_text(text=
                 "Extract ALL text from this document image exactly as written. "
                 "Also classify the document type as one of: medicaid, uscis, irs, dmv, "
                 "school, medical, lease, car_insurance, utility, other. "

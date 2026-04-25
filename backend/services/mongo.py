@@ -33,17 +33,21 @@ async def save_document(
     if db is None:
         logger.warning("MongoDB unavailable — skipping save_document")
         return ""
-    record = {
-        **doc,
-        "user_id": user_id,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-    }
-    if embedding:
-        record["embedding"] = embedding
-    result = await db["documents"].insert_one(record)
-    doc_id = str(result.inserted_id)
-    logger.info("MongoDB document saved: user=%s doc_id=%s", user_id, doc_id)
-    return doc_id
+    try:
+        record = {
+            **doc,
+            "user_id": user_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        if embedding:
+            record["embedding"] = embedding
+        result = await db["documents"].insert_one(record)
+        doc_id = str(result.inserted_id)
+        logger.info("MongoDB document saved: user=%s doc_id=%s", user_id, doc_id)
+        return doc_id
+    except Exception as exc:
+        logger.warning("MongoDB save_document failed (non-critical): %s", exc)
+        return ""
 
 
 async def find_similar(
@@ -53,28 +57,36 @@ async def find_similar(
     db = _get_db()
     if db is None:
         return []
-    cursor = (
-        db["documents"]
-        .find({"user_id": user_id})
-        .sort("created_at", -1)
-        .limit(k)
-    )
-    docs = await cursor.to_list(length=k)
-    for d in docs:
-        d["_id"] = str(d["_id"])
-    return docs
+    try:
+        cursor = (
+            db["documents"]
+            .find({"user_id": user_id})
+            .sort("created_at", -1)
+            .limit(k)
+        )
+        docs = await cursor.to_list(length=k)
+        for d in docs:
+            d["_id"] = str(d["_id"])
+        return docs
+    except Exception as exc:
+        logger.warning("MongoDB find_similar failed (non-critical): %s", exc)
+        return []
 
 
 async def get_timeline(user_id: str) -> list[dict]:
     db = _get_db()
     if db is None:
         return []
-    cursor = (
-        db["documents"]
-        .find({"user_id": user_id})
-        .sort("created_at", -1)
-    )
-    docs = await cursor.to_list(length=100)
-    for d in docs:
-        d["_id"] = str(d["_id"])
-    return docs
+    try:
+        cursor = (
+            db["documents"]
+            .find({"user_id": user_id})
+            .sort("created_at", -1)
+        )
+        docs = await cursor.to_list(length=100)
+        for d in docs:
+            d["_id"] = str(d["_id"])
+        return docs
+    except Exception as exc:
+        logger.warning("MongoDB get_timeline failed (non-critical): %s", exc)
+        return []
