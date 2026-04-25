@@ -1,11 +1,15 @@
 """Parser uAgent — OCR + document classification via Gemini Vision."""
-import datetime
+from datetime import datetime
+from uuid import uuid4
 import os
 
 from uagents import Agent, Protocol, Context
 from uagents_core.contrib.protocols.chat import (
     ChatMessage,
     ChatAcknowledgement,
+    StartSessionContent,
+    TextContent,
+    EndSessionContent,
     chat_protocol_spec,
 )
 
@@ -26,17 +30,44 @@ parser = Agent(
 chat_proto = Protocol(spec=chat_protocol_spec)
 
 
+def create_text_chat(text: str) -> ChatMessage:
+    content = [TextContent(type="text", text=text)]
+    return ChatMessage(
+        timestamp=datetime.utcnow(),
+        msg_id=uuid4(),
+        content=content,
+    )
+
+
 @chat_proto.on_message(ChatMessage)
 async def handle_chat(ctx: Context, sender: str, msg: ChatMessage):
-    ctx.logger.info("[parser] chat greeting from %s", sender)
     await ctx.send(
         sender,
         ChatAcknowledgement(
-            timestamp=datetime.datetime.now(datetime.timezone.utc),
+            timestamp=datetime.utcnow(),
             acknowledged_msg_id=msg.msg_id,
-            metadata={"agent": "orision-parser", "status": "ready"},
         ),
     )
+    for item in msg.content:
+        if isinstance(item, StartSessionContent):
+            ctx.logger.info(f"[parser] session started with {sender}")
+        elif isinstance(item, TextContent):
+            ctx.logger.info(f"[parser] processing text from {sender}")
+            try:
+                text_input = item.text.strip()
+                if text_input.startswith("http"):
+                    result = await extract_text_from_image(text_input)
+                    raw_text = result.get("raw_text", "")
+                    doc_type = result.get("document_type_guess", "unknown")
+                    response_text = f"Document Type: {doc_type}\n\nExtracted Text:\n{raw_text}"
+                else:
+                    response_text = f"Parser received text (send an image URL for OCR):\n{text_input}"
+            except Exception as exc:
+                ctx.logger.error("[parser] chat processing failed: %s", exc)
+                response_text = f"Parser error: {exc}"
+            await ctx.send(sender, create_text_chat(response_text))
+        elif isinstance(item, EndSessionContent):
+            ctx.logger.info(f"[parser] session ended with {sender}")
 
 
 @chat_proto.on_message(ChatAcknowledgement)

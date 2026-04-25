@@ -1,11 +1,15 @@
 """Translator uAgent — English explanation to Mandarin translation via Gemini."""
-import datetime
+from datetime import datetime
+from uuid import uuid4
 import os
 
 from uagents import Agent, Protocol, Context
 from uagents_core.contrib.protocols.chat import (
     ChatMessage,
     ChatAcknowledgement,
+    StartSessionContent,
+    TextContent,
+    EndSessionContent,
     chat_protocol_spec,
 )
 
@@ -26,17 +30,44 @@ translator = Agent(
 chat_proto = Protocol(spec=chat_protocol_spec)
 
 
+def create_text_chat(text: str) -> ChatMessage:
+    content = [TextContent(type="text", text=text)]
+    return ChatMessage(
+        timestamp=datetime.utcnow(),
+        msg_id=uuid4(),
+        content=content,
+    )
+
+
 @chat_proto.on_message(ChatMessage)
 async def handle_chat(ctx: Context, sender: str, msg: ChatMessage):
-    ctx.logger.info("[translator] chat greeting from %s", sender)
     await ctx.send(
         sender,
         ChatAcknowledgement(
-            timestamp=datetime.datetime.now(datetime.timezone.utc),
+            timestamp=datetime.utcnow(),
             acknowledged_msg_id=msg.msg_id,
-            metadata={"agent": "orision-translator", "status": "ready"},
         ),
     )
+    for item in msg.content:
+        if isinstance(item, StartSessionContent):
+            ctx.logger.info(f"[translator] session started with {sender}")
+        elif isinstance(item, TextContent):
+            ctx.logger.info(f"[translator] processing text from {sender}")
+            try:
+                text_input = item.text.strip()
+                target_lang = "es"
+                if text_input.lower().startswith("to:"):
+                    parts = text_input.split(" ", 1)
+                    target_lang = parts[0][3:]
+                    text_input = parts[1] if len(parts) > 1 else ""
+                translated = await translate_text(text_input, "unknown", target_lang)
+                response_text = f"Translation ({target_lang}):\n\n{translated}"
+            except Exception as exc:
+                ctx.logger.error("[translator] chat processing failed: %s", exc)
+                response_text = f"Translation error: {exc}"
+            await ctx.send(sender, create_text_chat(response_text))
+        elif isinstance(item, EndSessionContent):
+            ctx.logger.info(f"[translator] session ended with {sender}")
 
 
 @chat_proto.on_message(ChatAcknowledgement)

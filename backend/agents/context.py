@@ -3,13 +3,17 @@
 This agent is ALSO exposed as an MCP server (see mcp_server/server.py)
 for the Cognition Augment the Agent challenge.
 """
-import datetime
+from datetime import datetime
+from uuid import uuid4
 import os
 
 from uagents import Agent, Protocol, Context
 from uagents_core.contrib.protocols.chat import (
     ChatMessage,
     ChatAcknowledgement,
+    StartSessionContent,
+    TextContent,
+    EndSessionContent,
     chat_protocol_spec,
 )
 
@@ -31,17 +35,43 @@ context_agent = Agent(
 chat_proto = Protocol(spec=chat_protocol_spec)
 
 
+def create_text_chat(text: str) -> ChatMessage:
+    content = [TextContent(type="text", text=text)]
+    return ChatMessage(
+        timestamp=datetime.utcnow(),
+        msg_id=uuid4(),
+        content=content,
+    )
+
+
 @chat_proto.on_message(ChatMessage)
 async def handle_chat(ctx: Context, sender: str, msg: ChatMessage):
-    ctx.logger.info("[context] chat greeting from %s", sender)
     await ctx.send(
         sender,
         ChatAcknowledgement(
-            timestamp=datetime.datetime.now(datetime.timezone.utc),
+            timestamp=datetime.utcnow(),
             acknowledged_msg_id=msg.msg_id,
-            metadata={"agent": "orision-context", "status": "ready"},
         ),
     )
+    for item in msg.content:
+        if isinstance(item, StartSessionContent):
+            ctx.logger.info(f"[context] session started with {sender}")
+        elif isinstance(item, TextContent):
+            ctx.logger.info(f"[context] processing text from {sender}")
+            try:
+                embedding = await embed_text(item.text)
+                past_docs = await find_similar("chat-user", embedding=embedding, k=3)
+                if past_docs:
+                    summaries = [f"- {d.get('document_type', 'unknown')} ({d.get('created_at', 'unknown date')})" for d in past_docs]
+                    response_text = f"Found {len(past_docs)} similar documents:\n" + "\n".join(summaries)
+                else:
+                    response_text = "No similar documents found in family history."
+            except Exception as exc:
+                ctx.logger.error("[context] chat processing failed: %s", exc)
+                response_text = f"Context search unavailable: {exc}"
+            await ctx.send(sender, create_text_chat(response_text))
+        elif isinstance(item, EndSessionContent):
+            ctx.logger.info(f"[context] session ended with {sender}")
 
 
 @chat_proto.on_message(ChatAcknowledgement)

@@ -1,5 +1,6 @@
 """Drafter uAgent — Gemini plain-English explanation with family context."""
-import datetime
+from datetime import datetime
+from uuid import uuid4
 import json
 import os
 
@@ -7,6 +8,9 @@ from uagents import Agent, Protocol, Context
 from uagents_core.contrib.protocols.chat import (
     ChatMessage,
     ChatAcknowledgement,
+    StartSessionContent,
+    TextContent,
+    EndSessionContent,
     chat_protocol_spec,
 )
 
@@ -27,17 +31,43 @@ drafter = Agent(
 chat_proto = Protocol(spec=chat_protocol_spec)
 
 
+def create_text_chat(text: str) -> ChatMessage:
+    content = [TextContent(type="text", text=text)]
+    return ChatMessage(
+        timestamp=datetime.utcnow(),
+        msg_id=uuid4(),
+        content=content,
+    )
+
+
 @chat_proto.on_message(ChatMessage)
 async def handle_chat(ctx: Context, sender: str, msg: ChatMessage):
-    ctx.logger.info("[drafter] chat greeting from %s", sender)
     await ctx.send(
         sender,
         ChatAcknowledgement(
-            timestamp=datetime.datetime.now(datetime.timezone.utc),
+            timestamp=datetime.utcnow(),
             acknowledged_msg_id=msg.msg_id,
-            metadata={"agent": "orision-drafter", "status": "ready"},
         ),
     )
+    for item in msg.content:
+        if isinstance(item, StartSessionContent):
+            ctx.logger.info(f"[drafter] session started with {sender}")
+        elif isinstance(item, TextContent):
+            ctx.logger.info(f"[drafter] processing text from {sender}")
+            try:
+                result = await explain_in_plain_english(item.text, "unknown", "")
+                explanation = result.get("explanation", "Could not generate explanation.")
+                key_facts = result.get("key_facts", {})
+                response_text = f"Plain-Language Explanation:\n\n{explanation}"
+                if key_facts:
+                    facts_str = "\n".join(f"- {k}: {v}" for k, v in key_facts.items())
+                    response_text += f"\n\nKey Facts:\n{facts_str}"
+            except Exception as exc:
+                ctx.logger.error("[drafter] chat processing failed: %s", exc)
+                response_text = f"Drafter error: {exc}"
+            await ctx.send(sender, create_text_chat(response_text))
+        elif isinstance(item, EndSessionContent):
+            ctx.logger.info(f"[drafter] session ended with {sender}")
 
 
 @chat_proto.on_message(ChatAcknowledgement)
