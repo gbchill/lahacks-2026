@@ -17,9 +17,10 @@ export function SimilarLetters({ documentIds }: SimilarLettersProps) {
           <div
             key={id}
             className="flex-shrink-0 w-40 rounded-xl border border-border bg-card p-3"
+            aria-label={`Past document ${id.slice(0, 8)}`}
           >
             <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center mb-2">
-              <FileText className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+              <FileText className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} aria-hidden="true" />
             </div>
             <p className="text-xs text-muted-foreground font-mono truncate">
               {id.slice(0, 8)}...

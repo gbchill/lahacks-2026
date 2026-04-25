@@ -116,7 +116,7 @@ export function AudioPlayer({ src, label }: AudioPlayerProps) {
           aria-valuemax={Math.round(duration)}
           aria-valuenow={Math.round(currentTime)}
           tabIndex={0}
-          className="group relative h-6 flex items-center cursor-pointer"
+          className="group relative h-6 flex items-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded"
         >
           <div className="w-full h-1.5 rounded-full bg-border overflow-hidden">
             <div
