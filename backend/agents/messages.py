@@ -25,6 +25,7 @@ class ParsedDocument(Model):
     raw_text: str
     document_type: str
     confidence: float
+    error: str = ""
 
 
 class ContextRequest(Model):
@@ -65,6 +66,7 @@ class TranslateRequest(Model):
     document_type: str
     key_facts_json: str
     embedding: list
+    target_language: str = "zh-CN"
 
 
 class TranslatedExplanation(Model):
@@ -74,3 +76,4 @@ class TranslatedExplanation(Model):
     document_type: str
     key_facts_json: str
     embedding: list
+    similar_doc_ids: list = []

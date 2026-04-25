@@ -25,6 +25,7 @@ class PipelineTiming(BaseModel):
     translation: float | None = None
     tts: float | None = None
     audio_upload: float | None = None
+    agent_pipeline: float | None = None
     total: float | None = None
 
 

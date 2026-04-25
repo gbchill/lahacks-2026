@@ -180,7 +180,7 @@ async def explain_document_via_agents(
         enhanced_photo_url = enhance_for_ocr(public_id)
 
         # 2. Enqueue for orchestrator agent
-        loop = asyncio.get_event_loop()
+        loop = asyncio.get_running_loop()
         fut: asyncio.Future = loop.create_future()
         bridge.pending_futures[correlation_id] = fut
 
@@ -254,7 +254,7 @@ async def explain_document_via_agents(
                 amount_due=key_facts_raw.get("amount_due"),
                 action_required=key_facts_raw.get("action_required"),
             ),
-            similar_past_documents=[],
+            similar_past_documents=result.similar_doc_ids or [],
             pipeline_timing_ms=PipelineTiming(**timing),
         )
 

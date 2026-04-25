@@ -10,7 +10,7 @@ from uagents_core.contrib.protocols.chat import (
 )
 
 from agents.messages import TranslateRequest, TranslatedExplanation
-from services.gemini import translate_to_mandarin
+from services.gemini import translate_text
 
 translator = Agent(
     name="translator",
@@ -51,7 +51,9 @@ pipeline_proto = Protocol(name="OrisionPipeline", version="1.0.0")
 async def handle_translate(ctx: Context, sender: str, msg: TranslateRequest):
     ctx.logger.info("[translator] cid=%s", msg.correlation_id)
     try:
-        zh_text = await translate_to_mandarin(msg.english_explanation, msg.document_type)
+        zh_text = await translate_text(
+            msg.english_explanation, msg.document_type, msg.target_language
+        )
     except Exception as exc:
         ctx.logger.error("[translator] translation failed: %s", exc)
         zh_text = msg.english_explanation

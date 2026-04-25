@@ -60,7 +60,7 @@ async def handle_context(ctx: Context, sender: str, msg: ContextRequest):
 
     past_docs = await find_similar(
         msg.user_id,
-        embedding=embedding if embedding else None,
+        embedding=embedding or None,
         k=5,
     )
     ctx.logger.info(
@@ -85,7 +85,7 @@ async def handle_context(ctx: Context, sender: str, msg: ContextRequest):
             document_type=msg.document_type,
             family_history=family_history,
             similar_doc_ids=similar_doc_ids,
-            embedding=embedding,
+            embedding=embedding or [],
         ),
     )
 

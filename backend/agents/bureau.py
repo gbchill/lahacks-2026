@@ -14,7 +14,7 @@ from agents.translator import translator
 def build_bureau() -> Bureau:
     bureau = Bureau(
         port=int(os.getenv("BUREAU_PORT", "8001")),
-        loop=asyncio.get_event_loop(),
+        loop=asyncio.get_running_loop(),
     )
     bureau.add(orchestrator)
     bureau.add(parser)

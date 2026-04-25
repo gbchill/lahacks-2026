@@ -6,7 +6,6 @@ from uagents import Agent, Protocol, Context
 from uagents_core.contrib.protocols.chat import (
     ChatMessage,
     ChatAcknowledgement,
-    TextContent,
     chat_protocol_spec,
 )
 
@@ -66,6 +65,7 @@ async def handle_parse(ctx: Context, sender: str, msg: ParseRequest):
             raw_text="",
             document_type="other",
             confidence=0.0,
+            error=f"OCR failed: {exc}",
         )
     await ctx.send(sender, response)
 

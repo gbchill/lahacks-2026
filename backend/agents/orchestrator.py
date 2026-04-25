@@ -29,10 +29,31 @@ from agents.messages import (
     TranslatedExplanation,
 )
 
-PARSER_ADDR = os.environ.get("PARSER_AGENT_ADDRESS", "")
-CONTEXT_ADDR = os.environ.get("CONTEXT_AGENT_ADDRESS", "")
-DRAFTER_ADDR = os.environ.get("DRAFTER_AGENT_ADDRESS", "")
-TRANSLATOR_ADDR = os.environ.get("TRANSLATOR_AGENT_ADDRESS", "")
+def _resolve_addr(env_var: str, import_fn) -> str:
+    addr = os.environ.get(env_var)
+    if addr:
+        return addr
+    return import_fn()
+
+
+def _parser_addr():
+    from agents.parser import parser
+    return parser.address
+
+
+def _context_addr():
+    from agents.context import context_agent
+    return context_agent.address
+
+
+def _drafter_addr():
+    from agents.drafter import drafter
+    return drafter.address
+
+
+def _translator_addr():
+    from agents.translator import translator
+    return translator.address
 
 orchestrator = Agent(
     name="orchestrator",
@@ -96,10 +117,15 @@ async def _run_pipeline(
     cid = req.correlation_id
     timeout = 60
 
+    parser_addr = _resolve_addr("PARSER_AGENT_ADDRESS", _parser_addr)
+    context_addr = _resolve_addr("CONTEXT_AGENT_ADDRESS", _context_addr)
+    drafter_addr = _resolve_addr("DRAFTER_AGENT_ADDRESS", _drafter_addr)
+    translator_addr = _resolve_addr("TRANSLATOR_AGENT_ADDRESS", _translator_addr)
+
     # 1. Parser — OCR + classify
     ctx.logger.info("[orchestrator] cid=%s -> parser", cid)
     parsed, status = await ctx.send_and_receive(
-        PARSER_ADDR,
+        parser_addr,
         ParseRequest(
             correlation_id=cid,
             image_url=req.image_url,
@@ -110,12 +136,14 @@ async def _run_pipeline(
     )
     if status.status == DeliveryStatus.FAILED or parsed is None:
         raise RuntimeError(f"Parser failed: {status.detail}")
+    if parsed.error:
+        raise RuntimeError(f"Parser OCR failed: {parsed.error}")
     ctx.logger.info("[orchestrator] cid=%s parser done, doc_type=%s", cid, parsed.document_type)
 
     # 2. Context — embed + vector search + family history
     ctx.logger.info("[orchestrator] cid=%s -> context", cid)
     context_bundle, status = await ctx.send_and_receive(
-        CONTEXT_ADDR,
+        context_addr,
         ContextRequest(
             correlation_id=cid,
             user_id=req.user_id,
@@ -132,7 +160,7 @@ async def _run_pipeline(
     # 3. Drafter — plain-English explanation
     ctx.logger.info("[orchestrator] cid=%s -> drafter", cid)
     draft, status = await ctx.send_and_receive(
-        DRAFTER_ADDR,
+        drafter_addr,
         DraftRequest(
             correlation_id=cid,
             raw_text=context_bundle.raw_text,
@@ -147,16 +175,17 @@ async def _run_pipeline(
         raise RuntimeError(f"Drafter failed: {status.detail}")
     ctx.logger.info("[orchestrator] cid=%s drafter done", cid)
 
-    # 4. Translator — English -> Mandarin
+    # 4. Translator — English -> target language
     ctx.logger.info("[orchestrator] cid=%s -> translator", cid)
     translated, status = await ctx.send_and_receive(
-        TRANSLATOR_ADDR,
+        translator_addr,
         TranslateRequest(
             correlation_id=cid,
             english_explanation=draft.english_explanation,
             document_type=draft.document_type,
             key_facts_json=draft.key_facts_json,
             embedding=draft.embedding,
+            target_language=req.target_language,
         ),
         response_type=TranslatedExplanation,
         timeout=timeout,
@@ -165,6 +194,7 @@ async def _run_pipeline(
         raise RuntimeError(f"Translator failed: {status.detail}")
     ctx.logger.info("[orchestrator] cid=%s translator done — chain complete", cid)
 
+    translated.similar_doc_ids = context_bundle.similar_doc_ids
     return translated
 
 

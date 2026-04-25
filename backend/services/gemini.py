@@ -133,32 +133,54 @@ async def explain_in_plain_english(
     return result
 
 
-async def translate_to_mandarin(english_text: str, document_type: str) -> str:
+_LANGUAGE_NAMES = {
+    "zh-CN": "Simplified Chinese (zh-CN)",
+    "zh-TW": "Traditional Chinese (zh-TW)",
+    "es": "Spanish",
+    "vi": "Vietnamese",
+    "ko": "Korean",
+    "tl": "Filipino (Tagalog)",
+    "fr": "French",
+    "ar": "Arabic",
+    "hi": "Hindi",
+    "ru": "Russian",
+    "pt": "Portuguese",
+}
+
+
+async def translate_text(
+    english_text: str, document_type: str, target_language: str = "zh-CN"
+) -> str:
     client = _get_client()
+    lang_name = _LANGUAGE_NAMES.get(target_language, target_language)
     response = await client.aio.models.generate_content(
         model=MODEL,
         contents=(
             f"Translate the following explanation of a {document_type} document "
-            f"into Simplified Chinese (zh-CN).\n\n"
+            f"into {lang_name}.\n\n"
             f"Translation rules — follow ALL of these exactly:\n"
-            f"- Audience: an immigrant mother whose adult daughter would normally explain this\n"
-            f"- Tone: warm and respectful — use 您 (formal you) when addressing the parent\n"
+            f"- Audience: an immigrant parent whose adult child would normally explain this\n"
+            f"- Tone: warm and respectful\n"
             f"- DO NOT translate these proper nouns — keep them in English: "
             f"Medicaid, USCIS, IRS, DMV, Social Security, Medicare, SNAP\n"
             f"- DO NOT translate dates, dollar amounts, addresses, names, or case numbers — "
             f"keep them exactly as written in English\n"
-            f"- Use natural everyday Mandarin, NOT bureaucratic literal translation\n"
+            f"- Use natural everyday language, NOT bureaucratic literal translation\n"
             f"- Lead with what the parent needs to do, then explain what the letter is\n\n"
             f"Text to translate:\n{english_text}\n\n"
-            f"Return ONLY the Simplified Chinese translation, no explanation or notes."
+            f"Return ONLY the {lang_name} translation, no explanation or notes."
         ),
         config=types.GenerateContentConfig(
             temperature=0.3,
         ),
     )
     translated = response.text.strip()
-    logger.info("Gemini translation complete: length=%d chars", len(translated))
+    logger.info("Gemini translation complete: lang=%s length=%d chars", target_language, len(translated))
     return translated
+
+
+async def translate_to_mandarin(english_text: str, document_type: str) -> str:
+    return await translate_text(english_text, document_type, "zh-CN")
 
 
 async def embed_text(text: str) -> list[float]:
