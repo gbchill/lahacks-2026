@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+import re
 
 import httpx
 from google import genai
@@ -11,6 +12,24 @@ logger = logging.getLogger(__name__)
 
 MODEL = "gemini-2.5-flash"
 EMBED_MODEL = "gemini-embedding-001"
+
+
+def _parse_json(text: str) -> dict:
+    # Strip markdown fences
+    text = re.sub(r"^```(?:json)?\s*\n?", "", text.strip())
+    text = re.sub(r"\n?```\s*$", "", text.strip())
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    # Strip trailing commas before } and ]
+    cleaned = re.sub(r",\s*([}\]])", r"\1", text)
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as exc:
+        logger.error("Gemini returned unparseable JSON: %s", text[:500])
+        raise ValueError(f"Gemini JSON parse failed: {exc}") from exc
+
 
 _client: genai.Client | None = None
 
@@ -62,7 +81,7 @@ async def extract_text_from_image(image_url: str) -> dict:
             temperature=0.1,
         ),
     )
-    result = json.loads(response.text)
+    result = _parse_json(response.text)
     logger.info(
         "Gemini OCR complete: doc_type=%s confidence=%.2f text_length=%d",
         result.get("document_type_guess", "unknown"),
@@ -106,7 +125,7 @@ async def explain_in_plain_english(
             temperature=0.3,
         ),
     )
-    result = json.loads(response.text)
+    result = _parse_json(response.text)
     logger.info(
         "Gemini explanation complete: action=%s",
         result.get("key_facts", {}).get("action_required", "none"),
