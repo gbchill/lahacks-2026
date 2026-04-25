@@ -8,7 +8,7 @@ from uuid import uuid4
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Request
 from pydantic import BaseModel
 
-from backend.services import twilio_voice
+from services import twilio_voice
 
 logger = logging.getLogger(__name__)
 
