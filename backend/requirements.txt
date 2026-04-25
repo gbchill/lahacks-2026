@@ -98,7 +98,7 @@ uagents==0.24.2
 uagents-core==0.4.4
 urllib3==2.6.3
 uvicorn==0.46.0
-uvloop==0.22.1
+# uvloop==0.22.1  # Windows-incompatible; uvicorn auto-falls-back to asyncio
 virtualenv==21.2.4
 watchfiles==1.1.1
 websockets==15.0.1
