@@ -1,0 +1,79 @@
+================================================================================
+CLOUDINARY REACT AI STARTER KIT — SCAFFOLD PROOF
+Date: 2026-04-24
+Repository: orision (LA Hacks 2026)
+================================================================================
+
+COMMAND RUN:
+$ npx create-cloudinary-react@latest
+
+PACKAGE VERSION:
+create-cloudinary-react@1.0.0-beta.23
+
+INTERACTIVE PROMPTS & ANSWERS:
+  ? What's your project's name? → app
+  ? What's your Cloudinary cloud name? → (skipped / left blank)
+  ? Upload Preset (optional)? → (skipped / left blank)
+  ? AI Assistant tool → Claude
+  ? Start development server? → N
+
+SCAFFOLD OUTPUT:
+npm warn exec The following package was not found and will be installed: create-cloudinary-react@1.0.0-beta.23
+
+🚀 Cloudinary React Starter Kit
+
+💡 Need a Cloudinary account? Sign up for free: https://cld.media/reactregister
+
+✔ What's your project's name? app
+✔ Cloud name configured
+✔ AI assistant: Claude
+
+📦 Creating project in ./app ...
+✔ Project files created
+✔ Dependencies installed
+✔ Environment configured (.env)
+✔ Claude AI configuration generated
+
+🎉 Success! Your Cloudinary React app is ready.
+
+PROJECT STRUCTURE CREATED:
+  app/
+  ├── .cursor/mcp.json
+  ├── .cursorrules
+  ├── .env
+  ├── .gitignore
+  ├── eslint.config.js
+  ├── index.html
+  ├── package.json
+  ├── package-lock.json
+  ├── public/vite.svg
+  ├── README.md
+  ├── src/
+  │   ├── App.css
+  │   ├── App.tsx
+  │   ├── cloudinary/
+  │   ├── index.css
+  │   └── main.tsx
+  ├── tsconfig.app.json
+  ├── tsconfig.json
+  ├── tsconfig.node.json
+  └── vite.config.ts
+
+FRAMEWORK DETECTED:
+  React 19.2.0 + Vite 6.4.2 + TypeScript 5.9.3
+
+CLOUDINARY SDKS INCLUDED:
+  @cloudinary/react ^1.14.3
+  @cloudinary/url-gen ^1.22.0
+
+DEV SERVER BOOT TEST:
+  $ npm run dev
+  VITE v6.4.2 ready in 819 ms
+  Local: http://localhost:5173/
+  ✔ Boot test PASSED
+
+================================================================================
+This file serves as proof that the Cloudinary React AI Starter Kit
+(create-cloudinary-react) was used to scaffold this project, as required
+by the Cloudinary Challenge at LA Hacks 2026.
+================================================================================
