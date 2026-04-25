@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Phone, ArrowLeft } from "lucide-react";
+import { Phone, ArrowLeft, PhoneOff, Loader2, PhoneCall } from "lucide-react";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExplanationCard } from "@/components/explanation-card";
 import { AudioPlayer } from "@/components/audio-player";
@@ -9,6 +9,9 @@ import { KeyFacts } from "@/components/key-facts";
 import { SimilarLetters } from "@/components/similar-letters";
 import { AgentTimeline } from "@/components/agent-timeline";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +21,11 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import type { ExplainResponse } from "@/lib/api";
+import {
+  startCall,
+  connectTranscript,
+  type TranscriptMessage,
+} from "@/lib/calls-api";
 
 const LANGUAGE_NAMES: Record<string, string> = {
   "zh-CN": "Chinese",
@@ -26,10 +34,99 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ro: "Romanian",
 };
 
+type CallStatus = "idle" | "connecting" | "active" | "ended";
+
+type TranscriptLine = {
+  speaker: "caller" | "agent";
+  text: string;
+  language: string;
+};
+
 export function ResultPage() {
   const location = useLocation();
   const data = location.state as ExplainResponse | null;
   const [callDialogOpen, setCallDialogOpen] = useState(false);
+
+  // Call state
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [callId, setCallId] = useState<string | null>(null);
+  const [callStatus, setCallStatus] = useState<CallStatus>("idle");
+  const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
+  const [callError, setCallError] = useState<string | null>(null);
+  const transcriptWsRef = useRef<WebSocket | null>(null);
+  const transcriptEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll transcript to bottom
+  useEffect(() => {
+    transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [transcript]);
+
+  // Clean up websocket when dialog closes
+  function handleDialogClose(open: boolean) {
+    if (!open) {
+      transcriptWsRef.current?.close();
+      transcriptWsRef.current = null;
+    }
+    setCallDialogOpen(open);
+  }
+
+  async function handleStartCall() {
+    if (!data || !phoneNumber.trim()) return;
+    setCallError(null);
+    setCallStatus("connecting");
+    setTranscript([]);
+
+    try {
+      const res = await startCall(
+        "anonymous",
+        data.document_id,
+        phoneNumber.trim(),
+        data.target_language,
+      );
+      setCallId(res.call_id);
+
+      // Open transcript websocket
+      const ws = connectTranscript(res.call_id);
+      transcriptWsRef.current = ws;
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data as string) as TranscriptMessage;
+          if (msg.type === "status") {
+            setCallStatus(msg.status as CallStatus);
+          } else if (msg.type === "transcript") {
+            setTranscript((prev) => [
+              ...prev,
+              { speaker: msg.speaker, text: msg.text, language: msg.language },
+            ]);
+          } else if (msg.type === "error") {
+            setCallError(msg.detail);
+            setCallStatus("ended");
+          }
+        } catch {
+          // ignore parse errors
+        }
+      };
+
+      ws.onerror = () => {
+        setCallError("Connection error — please try again.");
+        setCallStatus("ended");
+      };
+
+      ws.onclose = () => {
+        setCallStatus((prev) => (prev !== "ended" ? "ended" : prev));
+      };
+    } catch (err) {
+      setCallError(err instanceof Error ? err.message : "Failed to start call");
+      setCallStatus("idle");
+    }
+  }
+
+  function handleEndCall() {
+    transcriptWsRef.current?.close();
+    transcriptWsRef.current = null;
+    setCallStatus("ended");
+  }
 
   if (!data) {
     return (
@@ -87,18 +184,164 @@ export function ResultPage() {
         </Button>
       </div>
 
-      <Dialog open={callDialogOpen} onOpenChange={setCallDialogOpen}>
+      <Dialog open={callDialogOpen} onOpenChange={handleDialogClose}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-heading text-2xl">
-              Live translated calls
+              Live translated call
             </DialogTitle>
             <DialogDescription className="text-base">
-              Call any office with real-time translation — coming next.
-              We'll connect you with an interpreter who speaks {langName}.
+              Call the office with real-time {langName} ↔ English translation.
             </DialogDescription>
           </DialogHeader>
+
+          {/* Status pill */}
+          <div className="flex items-center gap-2">
+            {callStatus === "idle" && (
+              <Badge variant="outline">Ready</Badge>
+            )}
+            {callStatus === "connecting" && (
+              <Badge variant="secondary" className="gap-1">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Connecting…
+              </Badge>
+            )}
+            {callStatus === "active" && (
+              <Badge
+                variant="default"
+                className="gap-1"
+                style={{ background: "#C45D3E" }}
+              >
+                <PhoneCall className="w-3 h-3" />
+                In Call
+              </Badge>
+            )}
+            {callStatus === "ended" && (
+              <Badge variant="outline">Call Ended</Badge>
+            )}
+          </div>
+
+          {/* Phone number input — shown when idle or after a call ended */}
+          {(callStatus === "idle" || callStatus === "ended") && (
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="phone-input"
+                className="text-sm font-medium text-foreground"
+              >
+                Office phone number
+              </label>
+              <Input
+                id="phone-input"
+                type="tel"
+                placeholder="+1-800-555-0123"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="h-11 text-base"
+                disabled={callStatus === "connecting" || callStatus === "active"}
+              />
+            </div>
+          )}
+
+          {/* Error message */}
+          {callError && (
+            <p className="text-sm text-destructive rounded-md bg-destructive/10 px-3 py-2">
+              {callError}
+            </p>
+          )}
+
+          {/* Transcript viewer — shown during/after a call */}
+          {(callStatus === "active" ||
+            callStatus === "ended" ||
+            transcript.length > 0) && (
+            <ScrollArea className="h-52 rounded-lg border bg-muted/30 p-3">
+              {transcript.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">
+                  Waiting for audio…
+                </p>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {transcript.map((line, i) => (
+                    <div
+                      key={i}
+                      className={`flex flex-col gap-0.5 ${
+                        line.speaker === "agent" ? "items-end" : "items-start"
+                      }`}
+                    >
+                      <Badge
+                        variant={
+                          line.speaker === "agent" ? "default" : "secondary"
+                        }
+                        className="text-[10px] px-1.5 py-0"
+                        style={
+                          line.speaker === "agent"
+                            ? { background: "#C45D3E" }
+                            : undefined
+                        }
+                      >
+                        {line.speaker === "agent" ? "Office" : "You"}
+                        {" · "}
+                        {line.language}
+                      </Badge>
+                      <p
+                        className={`text-sm rounded-xl px-3 py-2 max-w-[85%] ${
+                          line.speaker === "agent"
+                            ? "bg-[#C45D3E]/10 text-foreground"
+                            : "bg-muted text-foreground"
+                        }`}
+                      >
+                        {line.text}
+                      </p>
+                    </div>
+                  ))}
+                  <div ref={transcriptEndRef} />
+                </div>
+              )}
+            </ScrollArea>
+          )}
+
           <DialogFooter showCloseButton>
+            {callStatus === "idle" && (
+              <Button
+                onClick={handleStartCall}
+                disabled={!phoneNumber.trim()}
+                className="gap-2"
+                style={{ background: "#C45D3E" }}
+              >
+                <Phone className="w-4 h-4" />
+                Start Call
+              </Button>
+            )}
+            {callStatus === "connecting" && (
+              <Button disabled className="gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Connecting…
+              </Button>
+            )}
+            {callStatus === "active" && (
+              <Button
+                onClick={handleEndCall}
+                variant="destructive"
+                className="gap-2"
+              >
+                <PhoneOff className="w-4 h-4" />
+                End Call
+              </Button>
+            )}
+            {callStatus === "ended" && (
+              <Button
+                onClick={() => {
+                  setCallStatus("idle");
+                  setTranscript([]);
+                  setCallId(null);
+                  setCallError(null);
+                }}
+                variant="outline"
+                className="gap-2"
+              >
+                <Phone className="w-4 h-4" />
+                Call Again
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
