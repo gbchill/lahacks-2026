@@ -12,14 +12,34 @@ class DocumentFacts(BaseModel):
     sender: str | None = None
 
 
+class KeyFacts(BaseModel):
+    deadline: str | None = None
+    amount_due: str | None = None
+    action_required: str | None = None
+
+
+class PipelineTiming(BaseModel):
+    cloudinary_upload: float | None = None
+    ocr: float | None = None
+    explanation: float | None = None
+    translation: float | None = None
+    tts: float | None = None
+    audio_upload: float | None = None
+    total: float | None = None
+
+
 class ExplainResponse(BaseModel):
     document_id: str
     document_type: str
-    facts: DocumentFacts
-    explanation_text: str
-    explanation_audio_url: str
+    english_explanation: str
+    translated_explanation: str
     target_language: str
+    audio_url: str
+    original_photo_url: str
+    enhanced_photo_url: str
+    key_facts: KeyFacts = Field(default_factory=KeyFacts)
     similar_past_documents: list[str] = Field(default_factory=list)
+    pipeline_timing_ms: PipelineTiming = Field(default_factory=PipelineTiming)
 
 
 class TimelineItem(BaseModel):

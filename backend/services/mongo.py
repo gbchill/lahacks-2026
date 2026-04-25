@@ -1,7 +1,80 @@
 """MongoDB Atlas — document storage + vector search across family corpus."""
+import logging
 import os
-# TODO: implement using motor (async pymongo)
-# Functions:
-#   save_document(user_id: str, doc: dict, embedding: list[float]) -> doc_id
-#   find_similar(user_id: str, embedding: list[float], k: int = 5) -> list[dict]
-#   get_timeline(user_id: str) -> list[dict]
+from datetime import datetime, timezone
+
+import motor.motor_asyncio
+
+logger = logging.getLogger(__name__)
+
+_client: motor.motor_asyncio.AsyncIOMotorClient | None = None
+_db: motor.motor_asyncio.AsyncIOMotorDatabase | None = None
+
+
+def _get_db() -> motor.motor_asyncio.AsyncIOMotorDatabase | None:
+    global _client, _db
+    if _db is not None:
+        return _db
+    uri = os.getenv("MONGODB_URI")
+    if not uri:
+        logger.warning("MONGODB_URI not set — MongoDB disabled, pipeline will still run")
+        return None
+    db_name = os.getenv("MONGODB_DB_NAME", "orision")
+    _client = motor.motor_asyncio.AsyncIOMotorClient(uri)
+    _db = _client[db_name]
+    logger.info("MongoDB connected: db=%s", db_name)
+    return _db
+
+
+async def save_document(
+    user_id: str, doc: dict, embedding: list[float] | None = None
+) -> str:
+    db = _get_db()
+    if db is None:
+        logger.warning("MongoDB unavailable — skipping save_document")
+        return ""
+    record = {
+        **doc,
+        "user_id": user_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if embedding:
+        record["embedding"] = embedding
+    result = await db["documents"].insert_one(record)
+    doc_id = str(result.inserted_id)
+    logger.info("MongoDB document saved: user=%s doc_id=%s", user_id, doc_id)
+    return doc_id
+
+
+async def find_similar(
+    user_id: str, embedding: list[float] | None = None, k: int = 5
+) -> list[dict]:
+    # TODO: wire Atlas Vector Search using the embedding parameter
+    db = _get_db()
+    if db is None:
+        return []
+    cursor = (
+        db["documents"]
+        .find({"user_id": user_id})
+        .sort("created_at", -1)
+        .limit(k)
+    )
+    docs = await cursor.to_list(length=k)
+    for d in docs:
+        d["_id"] = str(d["_id"])
+    return docs
+
+
+async def get_timeline(user_id: str) -> list[dict]:
+    db = _get_db()
+    if db is None:
+        return []
+    cursor = (
+        db["documents"]
+        .find({"user_id": user_id})
+        .sort("created_at", -1)
+    )
+    docs = await cursor.to_list(length=100)
+    for d in docs:
+        d["_id"] = str(d["_id"])
+    return docs
