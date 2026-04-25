@@ -13,3 +13,7 @@ backend/.env
 backend/.env.local
 backend/__pycache__/
 backend/**/__pycache__/
+backend/pip_install.log
+
+# Local tooling
+.claude/
