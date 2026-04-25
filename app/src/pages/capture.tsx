@@ -23,11 +23,20 @@ export function CapturePage() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong";
-      toast.error("We couldn't read that photo", {
-        description: message.includes("ocr")
-          ? "Try better lighting or a clearer angle."
-          : "Please try again in a moment.",
-      });
+      const isRateLimit = message.includes("RESOURCE_EXHAUSTED") || message.includes("429");
+      const isOcr = message.includes("ocr");
+      toast.error(
+        isRateLimit
+          ? "Too many requests"
+          : "We couldn't read that photo",
+        {
+          description: isRateLimit
+            ? "The API is temporarily overloaded. Wait a minute and try again."
+            : isOcr
+              ? "Try better lighting or a clearer angle."
+              : "Please try again in a moment.",
+        },
+      );
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ import json
 import logging
 import os
 
+import httpx
 from google import genai
 from google.genai import types
 
@@ -26,10 +27,16 @@ def _get_client() -> genai.Client:
 
 async def extract_text_from_image(image_url: str) -> dict:
     client = _get_client()
+    async with httpx.AsyncClient() as http:
+        img_resp = await http.get(image_url, timeout=30)
+        img_resp.raise_for_status()
+    img_bytes = img_resp.content
+    content_type = img_resp.headers.get("content-type", "image/jpeg").split(";")[0]
+
     response = await client.aio.models.generate_content(
         model=MODEL,
         contents=[
-            types.Part.from_uri(file_uri=image_url, mime_type="image/jpeg"),
+            types.Part.from_bytes(data=img_bytes, mime_type=content_type),
             types.Part.from_text(text=
                 "Extract ALL text from this document image exactly as written. "
                 "Also classify the document type as one of: medicaid, uscis, irs, dmv, "
