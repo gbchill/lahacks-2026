@@ -64,6 +64,11 @@ app.include_router(documents.router, prefix="/documents", tags=["documents"])
 app.include_router(calls.router, prefix="/calls", tags=["calls"])
 app.include_router(family.router, prefix="/family", tags=["family"])
 
+# MCP server — mounted at /mcp for Cognition prize
+from mcp_server.server import mcp as mcp_server
+
+app.mount("/mcp", mcp_server.sse_app())
+
 
 @app.get("/")
 def root():
