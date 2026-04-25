@@ -15,6 +15,7 @@ from uagents_core.contrib.protocols.chat import (
 
 from agents.messages import ParseRequest, ParsedDocument
 from services.gemini import extract_text_from_image
+from services.gemma import detect_pii
 
 _endpoint = os.getenv("AGENT_ENDPOINT", "http://144.202.31.14:8001")
 
@@ -87,9 +88,18 @@ async def handle_parse(ctx: Context, sender: str, msg: ParseRequest):
     ctx.logger.info("[parser] cid=%s url=%s", msg.correlation_id, msg.image_url[:80])
     try:
         result = await extract_text_from_image(msg.image_url)
+        raw_text = result.get("raw_text", "")
+        pii_result = await detect_pii(raw_text)
+        redacted_text = pii_result.get("redacted_text", raw_text)
+        if pii_result.get("has_pii"):
+            ctx.logger.info(
+                "[parser] PII detected: types=%s cid=%s",
+                pii_result.get("pii_types"),
+                msg.correlation_id,
+            )
         response = ParsedDocument(
             correlation_id=msg.correlation_id,
-            raw_text=result.get("raw_text", ""),
+            raw_text=redacted_text,
             document_type=result.get("document_type_guess", "other"),
             confidence=result.get("confidence", 0.0),
         )

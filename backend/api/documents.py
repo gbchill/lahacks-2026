@@ -16,6 +16,7 @@ from services.gemini import (
     extract_text_from_image,
     translate_to_mandarin,
 )
+from services.gemma import detect_pii
 from services.mongo import find_similar, save_document
 
 import agents.bridge as bridge
@@ -66,11 +67,24 @@ async def explain_document(
             for d in past_docs[:3]
         )
 
+        # 3b. PII redaction — redact before sending text to cloud LLMs
+        current_step = "pii_redaction"
+        t0 = time.perf_counter()
+        pii_result = await detect_pii(raw_text)
+        timing["pii_redaction"] = round((time.perf_counter() - t0) * 1000, 1)
+        redacted_text = pii_result.get("redacted_text", raw_text)
+        if pii_result.get("has_pii"):
+            logger.info(
+                "PII detected: types=%s doc_id=%s",
+                pii_result.get("pii_types"),
+                doc_id,
+            )
+
         # 4. Plain-English explanation
         current_step = "explanation"
         t0 = time.perf_counter()
         explain_result = await explain_in_plain_english(
-            raw_text, document_type, family_history
+            redacted_text, document_type, family_history
         )
         timing["explanation"] = round((time.perf_counter() - t0) * 1000, 1)
         english_explanation = explain_result.get("explanation", "")
@@ -101,7 +115,7 @@ async def explain_document(
                 {
                     "document_id": doc_id,
                     "document_type": document_type,
-                    "raw_text": raw_text,
+                    "raw_text": redacted_text,
                     "english_explanation": english_explanation,
                     "translated_explanation": translated_text,
                     "target_language": target_language,
