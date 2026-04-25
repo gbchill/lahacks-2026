@@ -7,6 +7,7 @@ import { ExplanationCard } from "@/components/explanation-card";
 import { AudioPlayer } from "@/components/audio-player";
 import { KeyFacts } from "@/components/key-facts";
 import { SimilarLetters } from "@/components/similar-letters";
+import { AgentTimeline } from "@/components/agent-timeline";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -71,7 +72,7 @@ export function ResultPage() {
 
       <KeyFacts facts={data.key_facts} />
 
-      {/* Agent Timeline will be inserted here in Phase 4 */}
+      <AgentTimeline timing={data.pipeline_timing_ms} data={data} />
 
       <SimilarLetters documentIds={data.similar_past_documents} />
 
