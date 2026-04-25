@@ -13,7 +13,7 @@ A box is only checked when the feature works AND the evidence is saved.
 - [x] App removes a real barrier for an underserved population
 - [x] Working end-to-end demo: photo -> translated audio explanation -> live call (call feature implemented)
 - [ ] Mobile-friendly (parents demo on a phone) — needs testing on real device
-- [ ] Live demo URL accessible from outside your laptop — needs Vultr deployment
+- [x] Live demo URL accessible from outside your laptop (http://144.202.31.14:8000)
 - [ ] Real document used in demo (Medicaid envelope, not lorem ipsum)
 
 ### Evidence for Devpost
@@ -64,7 +64,7 @@ A box is only checked when the feature works AND the evidence is saved.
 - [ ] All 4 agents registered on Agentverse (not just running locally) — **MANUAL: do on agentverse.ai**
 - [ ] All 4 agents discoverable via ASI:One search
 - [x] Agent orchestration triggered by `/documents/explain-via-agents` endpoint
-- [ ] Agents hosted on Vultr (not your laptop) for the demo — **needs Vultr deploy**
+- [x] Agents hosted on Vultr (144.202.31.14)
 
 #### Evidence for Devpost
 - [ ] Screenshot of all 4 agents listed in Agentverse Inspector
@@ -96,7 +96,7 @@ A box is only checked when the feature works AND the evidence is saved.
 - [x] MCP server in `/backend/mcp_server/server.py` using official `mcp` Python SDK
 - [x] Exposes tool: `explain_government_letter(letter_text, target_language, user_id?) -> dict`
 - [x] Exposes tool: `search_family_documents(query_text, user_id, k)`
-- [ ] MCP server runs on Vultr — **needs Vultr deploy**
+- [x] MCP server runs on Vultr (http://144.202.31.14:8000/mcp/sse)
 - [x] Successfully tested with at least one external MCP client (Claude Desktop) — screenshot saved
 - [x] Connection config documented in `backend/mcp_server/README.md`
 
@@ -194,11 +194,11 @@ A box is only checked when the feature works AND the evidence is saved.
 ### 10. MLH Best Use of Vultr — Portable screens
 
 #### Requirements
-- [ ] Vultr Cloud Compute instance provisioned with free credits — **DO NOW**
-- [ ] FastAPI backend deployed and reachable via public IP/domain
-- [ ] Fetch.ai uAgents running on the Vultr instance
-- [ ] MCP server running on the Vultr instance
-- [ ] Demo URL hits the Vultr-hosted backend (not localhost)
+- [x] Vultr Cloud Compute instance provisioned (144.202.31.14, Ubuntu 22.04, Chicago)
+- [x] FastAPI backend deployed and reachable at http://144.202.31.14:8000
+- [x] Fetch.ai uAgents running on the Vultr instance (Bureau on port 8001)
+- [x] MCP server running on the Vultr instance (http://144.202.31.14:8000/mcp/sse)
+- [x] Demo URL hits the Vultr-hosted backend
 
 #### What's ready
 - [x] Dockerfile exists in backend/
@@ -270,7 +270,7 @@ A box is only checked when the feature works AND the evidence is saved.
 
 1. ~~**Cloudinary console** — create `orision_unsigned` upload preset~~ DONE
 2. ~~**MCP test** — add to Claude Desktop, test, screenshot~~ DONE
-3. **Vultr** — provision instance, run `./backend/scripts/deploy.sh <IP>` (1-2 hr)
+3. ~~**Vultr** — deployed at 144.202.31.14~~ DONE
 4. **Agentverse** — register 4 agents on agentverse.ai (30-45 min)
 5. **ASI:One** — verify agent discoverability, screenshot (10 min)
 6. **OmegaClaw** — register skill after Agentverse done (30 min)
