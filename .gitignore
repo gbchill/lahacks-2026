@@ -6,3 +6,10 @@ node_modules
 dist
 build
 .DS_Store
+
+# Python / backend
+backend/venv/
+backend/.env
+backend/.env.local
+backend/__pycache__/
+backend/**/__pycache__/

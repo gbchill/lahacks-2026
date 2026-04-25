@@ -70,6 +70,14 @@ npm run lint            # ESLint
 - Distinctive typography — never Inter, Roboto, Arial, or system fonts
 - Bold aesthetic direction — no generic AI-generated aesthetics
 
+## Backend (Python FastAPI)
+- Lives in /backend, deployed to Vultr
+- Owns: all external API calls (Gemini, Gemma, ElevenLabs, Twilio, Mongo, Supabase, Cloudinary server-side), Fetch.ai uAgents, MCP server
+- Frontend hits it via VITE_BACKEND_URL env var
+- All API keys live ONLY in /backend/.env — never in frontend
+- Run locally: `cd backend && source venv/bin/activate && uvicorn main:app --reload --port 8000`
+- API docs: http://localhost:8000/docs
+
 ## Hard Rules
 - Do NOT substitute create-next-app or any other starter for the Cloudinary scaffold
 - Do NOT install new dependencies without asking first
