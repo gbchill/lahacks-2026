@@ -10,7 +10,8 @@ export async function detectLanguageFromAudio(
   audioBlob: Blob,
 ): Promise<LanguageDetectionResult> {
   const form = new FormData();
-  form.append("audio", audioBlob, "recording.webm");
+  const ext = audioBlob.type.includes("mp4") ? "mp4" : "webm";
+  form.append("audio", audioBlob, `recording.${ext}`);
 
   const res = await fetch(`${BACKEND_URL}/language/detect`, {
     method: "POST",

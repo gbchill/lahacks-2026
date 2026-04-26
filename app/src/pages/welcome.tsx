@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Globe, Mic } from "lucide-react";
+import { toast } from "sonner";
 import { LanguageDropdown } from "@/components/language-picker";
 import { useLanguage } from "@/contexts/language-context";
 import { getLabels } from "@/lib/menu-labels";
@@ -162,9 +163,10 @@ export function WelcomePage() {
               <button
                 type="button"
                 onClick={handleMicClick}
+                disabled={!supported || detecting}
                 aria-label={labels.voicePrompt}
                 aria-pressed={listening}
-                title={labels.voiceComingSoon}
+                title={labels.voicePrompt}
                 className={cn(
                   "h-16 w-16 rounded-2xl border bg-background shadow-sm shrink-0",
                   "flex items-center justify-center cursor-pointer transition-all duration-200",
@@ -213,12 +215,12 @@ export function WelcomePage() {
             </button>
           </motion.div>
 
-          {/* Listening indicator */}
+          {/* Listening / detecting / detected indicator */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: listening ? 1 : 0 }}
+            animate={{ opacity: busy || detectedFlash ? 1 : 0 }}
             transition={{ duration: 0.25 }}
-            className="h-6 mt-4 flex items-center gap-2 text-sm text-primary"
+            className="h-6 mt-4 flex items-center gap-2 text-sm"
             aria-live="polite"
           >
             {listening && (
@@ -227,8 +229,14 @@ export function WelcomePage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
                 </span>
-                {labels.voiceListening}
+                <span className="text-primary">{labels.voiceListening}</span>
               </>
+            )}
+            {detecting && (
+              <span className="text-primary">{labels.voiceDetecting}</span>
+            )}
+            {detectedFlash && !busy && (
+              <span className="text-green-600 font-medium">{labels.voiceDetected}</span>
             )}
           </motion.div>
         </section>

@@ -69,11 +69,18 @@ export function useMicLanguageDetection(recordMs = 4000) {
 
     streamRef.current = stream;
 
-    const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-      ? "audio/webm;codecs=opus"
-      : "audio/webm";
+    const mimeType =
+      MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/webm")
+          ? "audio/webm"
+          : MediaRecorder.isTypeSupported("audio/mp4")
+            ? "audio/mp4"
+            : undefined;
 
-    const recorder = new MediaRecorder(stream, { mimeType });
+    const recorder = mimeType
+      ? new MediaRecorder(stream, { mimeType })
+      : new MediaRecorder(stream);
     mediaRecorderRef.current = recorder;
 
     recorder.ondataavailable = (e) => {
@@ -89,7 +96,8 @@ export function useMicLanguageDetection(recordMs = 4000) {
         return;
       }
 
-      const blob = new Blob(chunksRef.current, { type: mimeType });
+      const actualMime = recorder.mimeType || mimeType || "audio/webm";
+      const blob = new Blob(chunksRef.current, { type: actualMime });
       if (blob.size < 100) {
         setError("detection-failed");
         setListening(false);
