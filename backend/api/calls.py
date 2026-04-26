@@ -69,10 +69,10 @@ async def start_call(req: StartCallRequest, request: Request):
     call_transcripts[call_id] = []
     transcript_subscribers[call_id] = set()
 
-    # Build the websocket stream URL from the incoming request's base URL
-    base_url = str(request.base_url).rstrip("/")
-    # Twilio Media Streams require wss:// — convert http(s) → ws(s)
-    ws_base = base_url.replace("https://", "wss://").replace("http://", "ws://")
+    public_url = os.getenv("PUBLIC_BASE_URL", "").rstrip("/")
+    if not public_url:
+        public_url = str(request.base_url).rstrip("/")
+    ws_base = public_url.replace("https://", "wss://").replace("http://", "ws://")
     websocket_url = f"{ws_base}/calls/{call_id}/stream"
 
     try:
