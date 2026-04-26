@@ -14,13 +14,13 @@ const ease = [0.16, 1, 0.3, 1] as const;
 
 const SUBTITLE_CYCLE = LANGUAGES.map((l) => {
   const labels = getLabels(l.code);
-  return { code: l.code, text: labels.welcomeSubtitle };
+  return { code: l.code, title: labels.welcomeTitle, text: labels.welcomeSubtitle };
 });
 
 export function WelcomePage() {
   const navigate = useNavigate();
   const { code, set } = useLanguage();
-  const [pending, setPending] = useState<string | null>(code);
+  const [pending, setPending] = useState<string | null>(null);
   const [subtitleIndex, setSubtitleIndex] = useState(0);
   const [detectedFlash, setDetectedFlash] = useState<string | null>(null);
   const flashTimer = useRef<number | null>(null);
@@ -103,14 +103,20 @@ export function WelcomePage() {
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
         {/* Hero + selector card */}
         <section className="flex flex-1 flex-col items-center justify-center text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease }}
-            className="font-heading text-6xl sm:text-7xl leading-[1.05] tracking-tight text-balance text-foreground"
-          >
-            {labels.welcomeTitle}
-          </motion.h1>
+          <div className="h-[4.5rem] sm:h-[5.25rem] overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.h1
+                key={`title-${current.code}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease }}
+                className="font-heading text-6xl sm:text-7xl leading-[1.05] tracking-tight text-balance text-foreground"
+              >
+                {current.title}
+              </motion.h1>
+            </AnimatePresence>
+          </div>
 
           <div className="h-9 sm:h-10 mt-5 overflow-hidden max-w-md">
             <AnimatePresence mode="wait">
