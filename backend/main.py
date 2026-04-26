@@ -54,6 +54,7 @@ app.add_middleware(
         "https://orision.tech",
         "https://orision.online",
         "https://orision.family",
+        "https://orision.us",
     ],
     allow_origin_regex=r"https://.*\.vercel\.app|http://localhost:\d+",
     allow_credentials=True,
