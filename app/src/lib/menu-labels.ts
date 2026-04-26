@@ -8,6 +8,11 @@ export type MenuLabels = {
   voicePrompt: string;
   voiceListening: string;
   voiceComingSoon: string;
+  voiceDetected: string;
+  voiceDetecting: string;
+  voiceNotDetected: string;
+  voiceNotSupported: string;
+  voiceMicDenied: string;
 
   // Home menu cards
   scanTitle: string;
@@ -111,6 +116,11 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voicePrompt: "Or say it out loud",
     voiceListening: "Listening…",
     voiceComingSoon: "Coming soon",
+    voiceDetected: "Language detected!",
+    voiceDetecting: "Detecting language…",
+    voiceNotDetected: "Couldn't detect language — please try again",
+    voiceNotSupported: "Speech recognition isn't supported in this browser",
+    voiceMicDenied: "Microphone access denied",
 
     scanTitle: "Scan a letter",
     scanSubtitle: "Take a photo, hear it explained",
@@ -201,6 +211,11 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voicePrompt: "或大声说出来",
     voiceListening: "正在聆听…",
     voiceComingSoon: "即将推出",
+    voiceDetected: "语言已检测！",
+    voiceDetecting: "正在识别语言…",
+    voiceNotDetected: "无法检测语言，请再试一次",
+    voiceNotSupported: "此浏览器不支持语音识别",
+    voiceMicDenied: "麦克风访问被拒绝",
 
     scanTitle: "扫描信件",
     scanSubtitle: "拍照,听解释",
@@ -289,6 +304,11 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voicePrompt: "O dilo en voz alta",
     voiceListening: "Escuchando…",
     voiceComingSoon: "Próximamente",
+    voiceDetected: "¡Idioma detectado!",
+    voiceDetecting: "Detectando idioma…",
+    voiceNotDetected: "No se pudo detectar — intenta de nuevo",
+    voiceNotSupported: "Reconocimiento de voz no disponible en este navegador",
+    voiceMicDenied: "Acceso al micrófono denegado",
 
     scanTitle: "Escanear una carta",
     scanSubtitle: "Toma una foto, escucha la explicación",
@@ -379,6 +399,11 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voicePrompt: "Hoặc nói to lên",
     voiceListening: "Đang nghe…",
     voiceComingSoon: "Sắp ra mắt",
+    voiceDetected: "Đã nhận ra ngôn ngữ!",
+    voiceDetecting: "Đang nhận dạng ngôn ngữ…",
+    voiceNotDetected: "Không nhận ra ngôn ngữ — vui lòng thử lại",
+    voiceNotSupported: "Trình duyệt không hỗ trợ nhận dạng giọng nói",
+    voiceMicDenied: "Quyền truy cập microphone bị từ chối",
 
     scanTitle: "Quét một lá thư",
     scanSubtitle: "Chụp ảnh, nghe giải thích",
@@ -469,6 +494,11 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voicePrompt: "Sau spuneți cu voce tare",
     voiceListening: "Ascult…",
     voiceComingSoon: "În curând",
+    voiceDetected: "Limbă detectată!",
+    voiceDetecting: "Se detectează limba…",
+    voiceNotDetected: "Nu s-a detectat limba — încercați din nou",
+    voiceNotSupported: "Recunoașterea vocală nu este disponibilă în acest browser",
+    voiceMicDenied: "Accesul la microfon a fost refuzat",
 
     scanTitle: "Scanați o scrisoare",
     scanSubtitle: "Faceți o fotografie, ascultați explicația",

@@ -6,6 +6,7 @@ import { LanguageDropdown } from "@/components/language-picker";
 import { useLanguage } from "@/contexts/language-context";
 import { getLabels } from "@/lib/menu-labels";
 import { LANGUAGES } from "@/lib/languages";
+import { useMicLanguageDetection } from "@/hooks/use-speech-recognition";
 import { cn } from "@/lib/utils";
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -19,10 +20,18 @@ export function WelcomePage() {
   const navigate = useNavigate();
   const { code, set } = useLanguage();
   const [pending, setPending] = useState<string | null>(code);
-  const [listening, setListening] = useState(false);
   const [subtitleIndex, setSubtitleIndex] = useState(0);
-  const listenTimeout = useRef<number | null>(null);
+  const [detectedFlash, setDetectedFlash] = useState<string | null>(null);
+  const flashTimer = useRef<number | null>(null);
+  const langRef = useRef(pending ?? code);
+  langRef.current = pending ?? code;
 
+  const { supported, listening, detecting, detectedLang, error, start, stop } =
+    useMicLanguageDetection(4000);
+
+  const busy = listening || detecting;
+
+  // Subtitle cycling
   useEffect(() => {
     const id = window.setInterval(() => {
       setSubtitleIndex((i) => (i + 1) % SUBTITLE_CYCLE.length);
@@ -30,22 +39,43 @@ export function WelcomePage() {
     return () => window.clearInterval(id);
   }, []);
 
+  // Cleanup flash timer
   useEffect(() => {
     return () => {
-      if (listenTimeout.current) window.clearTimeout(listenTimeout.current);
+      if (flashTimer.current) window.clearTimeout(flashTimer.current);
     };
   }, []);
 
+  // Handle successful detection
+  useEffect(() => {
+    if (!detectedLang) return;
+    setPending(detectedLang);
+    setDetectedFlash(detectedLang);
+    if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setDetectedFlash(null), 2500);
+  }, [detectedLang]);
+
+  // Handle errors
+  useEffect(() => {
+    if (!error) return;
+    const l = getLabels(langRef.current);
+    if (error === "permission-denied") toast.error(l.voiceMicDenied);
+    else if (error === "not-supported") toast.error(l.voiceNotSupported);
+    else if (error === "detection-failed") toast.error(l.voiceNotDetected);
+  }, [error]);
+
   const handleMicClick = () => {
-    if (listening) {
-      setListening(false);
-      if (listenTimeout.current) window.clearTimeout(listenTimeout.current);
+    if (!supported) {
+      toast.error(getLabels(langRef.current).voiceNotSupported);
       return;
     }
-    setListening(true);
-    listenTimeout.current = window.setTimeout(() => {
-      setListening(false);
-    }, 2400);
+    if (listening) {
+      stop();
+      return;
+    }
+    if (detecting) return;
+    setDetectedFlash(null);
+    start();
   };
 
   const handleContinue = () => {
