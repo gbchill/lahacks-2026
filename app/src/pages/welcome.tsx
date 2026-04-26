@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, Mic } from "lucide-react";
+import { toast } from "sonner";
 import { LanguageDropdown } from "@/components/language-picker";
 import { useLanguage } from "@/contexts/language-context";
 import { getLabels } from "@/lib/menu-labels";
 import { LANGUAGES } from "@/lib/languages";
+import { useMicLanguageDetection } from "@/hooks/use-speech-recognition";
 import { cn } from "@/lib/utils";
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -19,10 +21,18 @@ export function WelcomePage() {
   const navigate = useNavigate();
   const { code, set } = useLanguage();
   const [pending, setPending] = useState<string | null>(code);
-  const [listening, setListening] = useState(false);
   const [subtitleIndex, setSubtitleIndex] = useState(0);
-  const listenTimeout = useRef<number | null>(null);
+  const [detectedFlash, setDetectedFlash] = useState<string | null>(null);
+  const flashTimer = useRef<number | null>(null);
+  const langRef = useRef(pending ?? code);
+  langRef.current = pending ?? code;
 
+  const { supported, listening, detecting, detectedLang, error, start, stop } =
+    useMicLanguageDetection(4000);
+
+  const busy = listening || detecting;
+
+  // Subtitle cycling
   useEffect(() => {
     const id = window.setInterval(() => {
       setSubtitleIndex((i) => (i + 1) % SUBTITLE_CYCLE.length);
@@ -30,22 +40,43 @@ export function WelcomePage() {
     return () => window.clearInterval(id);
   }, []);
 
+  // Cleanup flash timer
   useEffect(() => {
     return () => {
-      if (listenTimeout.current) window.clearTimeout(listenTimeout.current);
+      if (flashTimer.current) window.clearTimeout(flashTimer.current);
     };
   }, []);
 
+  // Handle successful detection
+  useEffect(() => {
+    if (!detectedLang) return;
+    setPending(detectedLang);
+    setDetectedFlash(detectedLang);
+    if (flashTimer.current) window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setDetectedFlash(null), 2500);
+  }, [detectedLang]);
+
+  // Handle errors
+  useEffect(() => {
+    if (!error) return;
+    const l = getLabels(langRef.current);
+    if (error === "permission-denied") toast.error(l.voiceMicDenied);
+    else if (error === "not-supported") toast.error(l.voiceNotSupported);
+    else if (error === "detection-failed") toast.error(l.voiceNotDetected);
+  }, [error]);
+
   const handleMicClick = () => {
-    if (listening) {
-      setListening(false);
-      if (listenTimeout.current) window.clearTimeout(listenTimeout.current);
+    if (!supported) {
+      toast.error(getLabels(langRef.current).voiceNotSupported);
       return;
     }
-    setListening(true);
-    listenTimeout.current = window.setTimeout(() => {
-      setListening(false);
-    }, 2400);
+    if (listening) {
+      stop();
+      return;
+    }
+    if (detecting) return;
+    setDetectedFlash(null);
+    start();
   };
 
   const handleContinue = () => {
@@ -101,14 +132,16 @@ export function WelcomePage() {
           <button
             type="button"
             onClick={handleMicClick}
+            disabled={!supported || detecting}
             aria-label={labels.voicePrompt}
             aria-pressed={listening}
-            title={labels.voiceComingSoon}
+            title={labels.voicePrompt}
             className={cn(
               "h-16 w-16 rounded-2xl border-2 flex items-center justify-center shrink-0",
               "transition-all duration-200",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-              listening
+              "disabled:opacity-40 disabled:cursor-not-allowed",
+              busy
                 ? "border-primary bg-primary/10"
                 : "border-border bg-card hover:border-primary/40",
             )}
@@ -116,7 +149,7 @@ export function WelcomePage() {
             <Mic
               className={cn(
                 "w-6 h-6 transition-colors duration-200",
-                listening ? "text-primary" : "text-muted-foreground",
+                busy ? "text-primary" : "text-muted-foreground",
               )}
               strokeWidth={1.75}
             />
@@ -128,9 +161,9 @@ export function WelcomePage() {
 
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: listening ? 1 : 0 }}
+          animate={{ opacity: busy || detectedFlash ? 1 : 0 }}
           transition={{ duration: 0.25 }}
-          className="h-6 mt-3 flex items-center gap-2 text-sm text-primary"
+          className="h-6 mt-3 flex items-center gap-2 text-sm"
           aria-live="polite"
         >
           {listening && (
@@ -139,8 +172,22 @@ export function WelcomePage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
               </span>
-              {labels.voiceListening}
+              <span className="text-primary">{labels.voiceListening}</span>
             </>
+          )}
+          {detecting && (
+            <>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+              </span>
+              <span className="text-primary">{labels.voiceDetecting}</span>
+            </>
+          )}
+          {detectedFlash && !busy && (
+            <span className="text-green-600 font-medium">
+              {labels.voiceDetected}
+            </span>
           )}
         </motion.div>
 

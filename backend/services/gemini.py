@@ -183,6 +183,35 @@ async def translate_to_mandarin(english_text: str, document_type: str) -> str:
     return await translate_text(english_text, document_type, "zh-CN")
 
 
+async def detect_language_from_audio(audio_bytes: bytes, mime_type: str = "audio/webm") -> dict:
+    client = _get_client()
+    response = await client.aio.models.generate_content(
+        model=MODEL,
+        contents=[
+            types.Part.from_bytes(data=audio_bytes, mime_type=mime_type),
+            types.Part.from_text(text=(
+                "Listen to this audio clip and identify the spoken language. "
+                "Return JSON with keys: "
+                "language_code (MUST be one of: 'en', 'zh-CN', 'es', 'vi', 'ro'), "
+                "language_name (English name), "
+                "confidence (float 0-1). "
+                "If the language is not one of those five, pick the closest match."
+            )),
+        ],
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            temperature=0.1,
+        ),
+    )
+    result = _parse_json(response.text)
+    logger.info(
+        "Gemini language detection: code=%s confidence=%.2f",
+        result.get("language_code", "unknown"),
+        result.get("confidence", 0),
+    )
+    return result
+
+
 async def embed_text(text: str) -> list[float]:
     try:
         client = _get_client()
