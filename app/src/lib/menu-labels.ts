@@ -128,8 +128,8 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callSubtitle: "Translated in real time",
     documentsTitle: "My documents",
     documentsSubtitle: "Letters your family has saved",
-    tagline: "for the families who never had a translator at home",
-    statText: "25 million people in the U.S. live in homes where no adult speaks English well.",
+    tagline: "For the families who never had a translator at home.",
+    statText: "Millions of families face language barriers every day. We're here to make communication easier for everyone.",
 
     saveHeading: "Save this for next time?",
     saveBody:
@@ -223,8 +223,8 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callSubtitle: "实时翻译",
     documentsTitle: "我的文件",
     documentsSubtitle: "家人保存的信件",
-    tagline: "为那些从未在家中拥有翻译的家庭而设",
-    statText: "美国有2500万人生活在没有成年人能流利说英语的家庭中。",
+    tagline: "为那些从未在家中拥有翻译的家庭而设。",
+    statText: "数百万家庭每天都面临语言障碍。我们在这里,让每个人的沟通都更轻松。",
 
     saveHeading: "保存以备下次使用?",
     saveBody: "如果保存,下次的信件可以参考我们已经了解的家庭情况。",
@@ -316,8 +316,8 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callSubtitle: "Traducción en tiempo real",
     documentsTitle: "Mis documentos",
     documentsSubtitle: "Cartas que tu familia ha guardado",
-    tagline: "para las familias que nunca tuvieron un traductor en casa",
-    statText: "\"25 millones de personas en EE. UU. viven en hogares donde ningún adulto habla bien inglés.\"",
+    tagline: "Para las familias que nunca tuvieron un traductor en casa.",
+    statText: "Millones de familias enfrentan barreras de idioma cada día. Estamos aquí para hacer la comunicación más fácil para todos.",
 
     saveHeading: "¿Guardar para la próxima vez?",
     saveBody:
@@ -411,8 +411,8 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callSubtitle: "Dịch theo thời gian thực",
     documentsTitle: "Tài liệu của tôi",
     documentsSubtitle: "Những lá thư gia đình đã lưu",
-    tagline: "dành cho những gia đình chưa bao giờ có người phiên dịch ở nhà",
-    statText: "25 triệu người ở Hoa Kỳ sống trong những gia đình không có người lớn nào nói tiếng Anh thành thạo.",
+    tagline: "Dành cho những gia đình chưa bao giờ có người phiên dịch ở nhà.",
+    statText: "Hàng triệu gia đình phải đối mặt với rào cản ngôn ngữ mỗi ngày. Chúng tôi ở đây để giúp việc giao tiếp dễ dàng hơn cho mọi người.",
 
     saveHeading: "Lưu cho lần sau?",
     saveBody:
@@ -506,8 +506,8 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callSubtitle: "Traducere în timp real",
     documentsTitle: "Documentele mele",
     documentsSubtitle: "Scrisori salvate de familia dumneavoastră",
-    tagline: "pentru familiile care nu au avut niciodată un traducător acasă",
-    statText: "25 de milioane de oameni din SUA trăiesc în case unde niciun adult nu vorbește bine engleza.",
+    tagline: "Pentru familiile care nu au avut niciodată un traducător acasă.",
+    statText: "Milioane de familii se confruntă zilnic cu bariere lingvistice. Suntem aici pentru a face comunicarea mai ușoară pentru toți.",
 
     saveHeading: "Salvați pentru data viitoare?",
     saveBody:

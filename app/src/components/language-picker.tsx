@@ -79,16 +79,16 @@ export function LanguageDropdown({ value, onChange, placeholder = "Choose your l
         aria-haspopup="listbox"
         aria-expanded={open}
         className={cn(
-          "w-full h-16 px-5 rounded-2xl border-2 bg-card flex items-center gap-4",
-          "text-left transition-all duration-200",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-          open ? "border-primary" : "border-border hover:border-primary/40",
+          "w-full h-16 px-4 rounded-2xl border bg-background flex items-center gap-3 shadow-sm",
+          "text-left transition-all duration-200 cursor-pointer",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-0",
+          open ? "border-primary/40" : "border-border hover:border-primary/40",
         )}
       >
-        <Globe className="w-5 h-5 text-muted-foreground shrink-0" strokeWidth={1.75} />
+        <Globe className="w-6 h-6 text-primary shrink-0" strokeWidth={2} />
         <span
           className={cn(
-            "flex-1 text-xl font-medium",
+            "flex-1 text-lg font-medium truncate",
             selected ? "text-foreground" : "text-muted-foreground",
           )}
         >
@@ -108,7 +108,7 @@ export function LanguageDropdown({ value, onChange, placeholder = "Choose your l
           aria-label="Languages"
           className={cn(
             "absolute z-30 left-0 right-0 mt-2 rounded-2xl border border-border bg-popover shadow-lg",
-            "overflow-hidden py-1.5",
+            "max-h-72 overflow-y-auto p-1.5",
           )}
         >
           {LANGUAGES.map((lang) => {
@@ -124,15 +124,14 @@ export function LanguageDropdown({ value, onChange, placeholder = "Choose your l
                     setOpen(false);
                   }}
                   className={cn(
-                    "w-full px-5 py-3.5 flex items-center gap-3 text-left",
+                    "w-full px-4 py-3 flex items-center gap-3 text-left rounded-xl cursor-pointer",
                     "transition-colors duration-150",
-                    "hover:bg-secondary focus-visible:bg-secondary focus-visible:outline-none",
-                    isSelected && "bg-secondary/60",
+                    "hover:bg-[#F2F2F2] focus-visible:bg-[#F2F2F2] focus-visible:outline-none",
                   )}
                 >
-                  <span className="flex-1">
-                    <span className="block text-lg font-medium text-foreground">{lang.native}</span>
-                    <span className="block text-xs text-muted-foreground mt-0.5">{lang.label}</span>
+                  <span className="flex-1 flex items-baseline gap-2 min-w-0">
+                    <span className="text-base font-medium text-foreground truncate">{lang.native}</span>
+                    <span className="text-sm text-muted-foreground truncate">{lang.label}</span>
                   </span>
                   {isSelected && <Check className="w-4 h-4 text-primary shrink-0" strokeWidth={2.5} />}
                 </button>

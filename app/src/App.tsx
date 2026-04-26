@@ -18,8 +18,8 @@ function RequireLanguage({ children }: { children: React.ReactNode }) {
 export function App() {
   return (
     <Routes>
+      <Route path="/welcome" element={<WelcomePage />} />
       <Route element={<AppShell />}>
-        <Route path="/welcome" element={<WelcomePage />} />
         <Route
           path="/"
           element={

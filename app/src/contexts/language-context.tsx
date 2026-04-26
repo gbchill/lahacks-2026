@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 const STORAGE_KEY = "orision.language";
+const RTL_LANGUAGES = new Set(["ar", "he", "fa", "ur"]);
 
 type LanguageContextValue = {
   code: string | null;
@@ -29,6 +30,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const base = code ? code.split("-")[0] : "en";
+    root.lang = code ?? "en";
+    root.dir = RTL_LANGUAGES.has(base) ? "rtl" : "ltr";
+  }, [code]);
 
   const set = useCallback((next: string) => {
     setCode(next);

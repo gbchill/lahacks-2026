@@ -3,32 +3,35 @@
 @import "shadcn/tailwind.css";
 
 :root {
-  --background: #FDFBF7;
-  --foreground: #1A1A1A;
-  --card: #FFFFFF;
-  --card-foreground: #1A1A1A;
-  --popover: #FFFFFF;
-  --popover-foreground: #1A1A1A;
-  --primary: #C45D3E;
-  --primary-foreground: #FDFBF7;
-  --secondary: #F5F0E8;
-  --secondary-foreground: #1A1A1A;
-  --muted: #F5F0E8;
-  --muted-foreground: #6B6B6B;
-  --accent: #C45D3E;
-  --accent-foreground: #FDFBF7;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.25 0.03 50);
+  --card: oklch(0.995 0.006 85);
+  --card-foreground: oklch(0.25 0.03 50);
+  --popover: oklch(0.995 0.006 85);
+  --popover-foreground: oklch(0.25 0.03 50);
+  --primary: #ADD8E6;
+  --primary-hover: #93C9DD;
+  --primary-foreground: oklch(0.25 0.03 50);
+  --secondary: oklch(0.95 0.02 80);
+  --secondary-foreground: oklch(0.25 0.03 50);
+  --muted: oklch(0.94 0.018 80);
+  --muted-foreground: oklch(0.5 0.03 60);
+  --accent: oklch(0.93 0.05 70);
+  --accent-foreground: oklch(0.25 0.03 50);
   --destructive: #DC2626;
-  --border: #E8E4DD;
-  --input: #E8E4DD;
-  --ring: #C45D3E;
-  --radius: 0.75rem;
+  --border: oklch(0.929 0.013 255);
+  --input: oklch(0.929 0.013 255);
+  --ring: #ADD8E6;
+  --radius: 1rem;
   --success: #2D8A56;
-  --success-foreground: #FFFFFF;
+  --success-foreground: oklch(0.99 0.01 85);
+  --shadow-color: oklch(0.853 0.044 233 / 0.4);
+  --primary-glow: oklch(0.9 0.03 233);
 }
 
 @theme inline {
-  --font-sans: 'DM Sans', 'Helvetica Neue', sans-serif;
-  --font-heading: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -37,6 +40,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -50,13 +54,14 @@
   --color-ring: var(--ring);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-primary-glow: var(--primary-glow);
+  --radius-sm: 0.75rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 1.75rem;
+  --radius-4xl: 2rem;
 }
 
 * {
@@ -85,6 +90,26 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+@layer utilities {
+  .animate-orision-float {
+    animation: orision-float 6s ease-in-out infinite;
+  }
+  .animate-orision-mic-pulse {
+    animation: orision-mic-pulse 2.4s ease-out infinite;
+  }
+}
+
+@keyframes orision-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes orision-mic-pulse {
+  0% { box-shadow: 0 0 0 0 oklch(0.853 0.044 233 / 0.5); }
+  70% { box-shadow: 0 0 0 16px oklch(0.853 0.044 233 / 0); }
+  100% { box-shadow: 0 0 0 0 oklch(0.853 0.044 233 / 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {

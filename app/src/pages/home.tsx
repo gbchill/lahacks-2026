@@ -56,7 +56,7 @@ export function HomePage() {
         <h1 className="font-heading text-5xl sm:text-6xl text-foreground leading-[1.05]">
           Orision
         </h1>
-        <p className="text-muted-foreground text-sm mt-3 tracking-wide">
+        <p className="text-muted-foreground text-lg mt-4 tracking-wide">
           {labels.tagline}
         </p>
       </motion.div>
@@ -99,15 +99,17 @@ export function HomePage() {
                     strokeWidth={1.5}
                   />
                 </div>
-                <div className="flex-1 flex flex-col items-center">
-                  <span className="font-heading text-2xl sm:text-[1.6rem] text-foreground leading-tight">
+                <div className="flex-1 flex flex-col items-center w-full">
+                  <span className="font-heading text-2xl sm:text-[1.6rem] text-foreground leading-tight min-h-[3.75rem] sm:min-h-[4rem] flex items-center text-center">
                     {native}
                   </span>
-                  {showEnglish && (
-                    <span className="text-xs text-muted-foreground/80 mt-1.5 uppercase tracking-wide">
-                      {service.englishLabel}
-                    </span>
-                  )}
+                  <div className="min-h-[1rem] mt-1.5">
+                    {showEnglish && (
+                      <span className="text-xs text-muted-foreground/80 uppercase tracking-wide">
+                        {service.englishLabel}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-sm text-muted-foreground mt-3 leading-snug">
                     {sub}
                   </span>
@@ -126,7 +128,7 @@ export function HomePage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.6, ease }}
-        className="text-base text-muted-foreground/70 mt-auto pt-16 pb-8 max-w-sm text-center leading-relaxed"
+        className="text-xl sm:text-2xl text-muted-foreground/70 mt-auto pt-16 pb-8 max-w-md text-center leading-relaxed"
       >
         {labels.statText}
       </motion.p>

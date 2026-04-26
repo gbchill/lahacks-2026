@@ -212,11 +212,7 @@ export function ResultPage() {
               </Badge>
             )}
             {callStatus === "active" && (
-              <Badge
-                variant="default"
-                className="gap-1"
-                style={{ background: "#C45D3E" }}
-              >
+              <Badge variant="default" className="gap-1">
                 <PhoneCall className="w-3 h-3" />
                 In Call
               </Badge>
@@ -277,11 +273,6 @@ export function ResultPage() {
                           line.speaker === "agent" ? "default" : "secondary"
                         }
                         className="text-[10px] px-1.5 py-0"
-                        style={
-                          line.speaker === "agent"
-                            ? { background: "#C45D3E" }
-                            : undefined
-                        }
                       >
                         {line.speaker === "agent" ? "Office" : "You"}
                         {" · "}
@@ -290,7 +281,7 @@ export function ResultPage() {
                       <p
                         className={`text-sm rounded-xl px-3 py-2 max-w-[85%] ${
                           line.speaker === "agent"
-                            ? "bg-[#C45D3E]/10 text-foreground"
+                            ? "bg-primary/10 text-foreground"
                             : "bg-muted text-foreground"
                         }`}
                       >
@@ -310,7 +301,6 @@ export function ResultPage() {
                 onClick={handleStartCall}
                 disabled={!phoneNumber.trim()}
                 className="gap-2"
-                style={{ background: "#C45D3E" }}
               >
                 <Phone className="w-4 h-4" />
                 Start Call

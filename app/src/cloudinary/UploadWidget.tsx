@@ -136,36 +136,24 @@ export function UploadWidget({
 
   if (scriptError) {
     return (
-      <div style={{ color: '#dc2626', fontSize: '0.875rem' }}>
+      <div className="text-destructive text-sm">
         Upload widget failed to load. Please refresh the page or check your network connection.
       </div>
     );
   }
+
+  const baseClasses =
+    "px-6 py-3 text-base font-medium rounded-lg text-primary-foreground border-0 transition-colors duration-200";
+  const stateClasses = isReady
+    ? "bg-primary hover:bg-primary-hover cursor-pointer"
+    : "bg-muted-foreground/60 cursor-wait opacity-70";
 
   return (
     <button
       type="button"
       onClick={handleClick}
       disabled={!isReady}
-      className={className}
-      style={{
-        padding: '0.75rem 1.5rem',
-        fontSize: '1rem',
-        fontWeight: 500,
-        color: 'white',
-        backgroundColor: isReady ? '#6366f1' : '#9ca3af',
-        border: 'none',
-        borderRadius: '0.5rem',
-        cursor: isReady ? 'pointer' : 'wait',
-        transition: 'background-color 0.2s',
-        opacity: isReady ? 1 : 0.7,
-      }}
-      onMouseEnter={(e) => {
-        if (isReady) e.currentTarget.style.backgroundColor = '#4f46e5';
-      }}
-      onMouseLeave={(e) => {
-        if (isReady) e.currentTarget.style.backgroundColor = '#6366f1';
-      }}
+      className={[baseClasses, stateClasses, className].filter(Boolean).join(" ")}
     >
       {isReady ? buttonText : 'Loading...'}
     </button>
