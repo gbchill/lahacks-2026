@@ -1,13 +1,14 @@
 import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mic, Square, Check, Users, Heart, User } from "lucide-react";
+import { Mic, Square, Check, Users, Heart, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getLabels } from "@/lib/menu-labels";
 import { VOICE_PASSAGES } from "@/lib/voice-passages";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageDropdown } from "@/components/language-picker";
 import { supabase } from "@/lib/supabase";
+import { cloneVoice } from "@/lib/voice-api";
 
 type Relationship = "parent" | "child" | "family";
 
@@ -211,6 +212,8 @@ function StepVoice({
   setAudioBlob,
   onFinish,
   onSkip,
+  cloning,
+  cloneError,
   labels,
 }: {
   langCode: string | null;
@@ -218,6 +221,8 @@ function StepVoice({
   setAudioBlob: (b: Blob | null) => void;
   onFinish: () => void;
   onSkip: () => void;
+  cloning: boolean;
+  cloneError: string | null;
   labels: ReturnType<typeof getLabels>;
 }) {
   const [isRecording, setIsRecording] = useState(false);
@@ -345,19 +350,32 @@ function StepVoice({
         )}
       </div>
 
+      {cloneError && (
+        <p className="text-sm text-red-400 text-center">{cloneError}</p>
+      )}
+
       {/* Actions */}
       <button
         type="button"
         onClick={onFinish}
-        className="rounded-xl bg-primary text-primary-foreground h-12 w-full font-medium"
+        disabled={cloning}
+        className="rounded-xl bg-primary text-primary-foreground h-12 w-full font-medium transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
       >
-        {labels.onboardingFinish}
+        {cloning ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Cloning voice…
+          </>
+        ) : (
+          labels.onboardingFinish
+        )}
       </button>
 
       <button
         type="button"
         onClick={onSkip}
-        className="text-sm text-muted-foreground underline-offset-4 hover:underline mx-auto"
+        disabled={cloning}
+        className="text-sm text-muted-foreground underline-offset-4 hover:underline mx-auto disabled:opacity-40"
       >
         {labels.onboardingSkip}
       </button>
@@ -384,6 +402,8 @@ export function OnboardingPage() {
 
   // Step 3 state
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [cloning, setCloning] = useState(false);
+  const [cloneError, setCloneError] = useState<string | null>(null);
 
   const labels = getLabels(langCode);
 
@@ -392,7 +412,41 @@ export function OnboardingPage() {
     setStep(next);
   }
 
-  async function complete() {
+  async function finishWithVoice() {
+    let voiceId: string | undefined;
+
+    if (audioBlob) {
+      setCloning(true);
+      setCloneError(null);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          voiceId = await cloneVoice(audioBlob, session.access_token);
+        }
+      } catch (err) {
+        setCloneError(err instanceof Error ? err.message : "Voice cloning failed. You can skip for now.");
+        setCloning(false);
+        return;
+      }
+      setCloning(false);
+    }
+
+    try {
+      await supabase.auth.updateUser({
+        data: {
+          name,
+          relationship,
+          onboarding_complete: true,
+          ...(voiceId ? { voice_id: voiceId } : {}),
+        },
+      });
+    } catch {
+      // Non-blocking
+    }
+    navigate("/home", { replace: true });
+  }
+
+  async function skipVoice() {
     try {
       await supabase.auth.updateUser({
         data: {
@@ -402,7 +456,7 @@ export function OnboardingPage() {
         },
       });
     } catch {
-      // Non-blocking — continue regardless
+      // Non-blocking
     }
     navigate("/home", { replace: true });
   }
@@ -475,8 +529,10 @@ export function OnboardingPage() {
                 langCode={selectedLang}
                 audioBlob={audioBlob}
                 setAudioBlob={setAudioBlob}
-                onFinish={complete}
-                onSkip={complete}
+                onFinish={finishWithVoice}
+                onSkip={skipVoice}
+                cloning={cloning}
+                cloneError={cloneError}
                 labels={labels}
               />
             </motion.div>
