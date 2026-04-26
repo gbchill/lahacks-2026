@@ -36,4 +36,4 @@ Every immigrant kid has stepped in as their family's translator. I did too. But 
 
 ## Team
 
-Built by George and Partner at LA Hacks 2026.
+Built by George and Jade at LA Hacks 2026.
