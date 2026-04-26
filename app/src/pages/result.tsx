@@ -49,7 +49,7 @@ export function ResultPage() {
 
   // Call state
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [callId, setCallId] = useState<string | null>(null);
+  const [, setCallId] = useState<string | null>(null);
   const [callStatus, setCallStatus] = useState<CallStatus>("idle");
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
   const [callError, setCallError] = useState<string | null>(null);
@@ -237,7 +237,7 @@ export function ResultPage() {
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 className="h-11 text-base"
-                disabled={callStatus === "connecting" || callStatus === "active"}
+                disabled={(callStatus as string) === "connecting" || (callStatus as string) === "active"}
               />
             </div>
           )}

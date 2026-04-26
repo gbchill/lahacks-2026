@@ -2,10 +2,13 @@
 import asyncio
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from api import documents, calls, family
 
@@ -70,11 +73,28 @@ from mcp_server.server import mcp as mcp_server
 app.mount("/mcp", mcp_server.sse_app())
 
 
-@app.get("/")
-def root():
-    return {"app": "orision", "status": "running"}
-
-
 @app.get("/health")
 def health():
     return {"ok": True}
+
+
+_STATIC_DIR = Path(__file__).parent / "static"
+
+
+if _STATIC_DIR.is_dir():
+    @app.get("/")
+    async def serve_index():
+        return FileResponse(_STATIC_DIR / "index.html")
+
+    app.mount("/assets", StaticFiles(directory=_STATIC_DIR / "assets"), name="assets")
+
+    @app.get("/{path:path}")
+    async def serve_spa(path: str):
+        file = _STATIC_DIR / path
+        if file.is_file():
+            return FileResponse(file)
+        return FileResponse(_STATIC_DIR / "index.html")
+else:
+    @app.get("/")
+    def root():
+        return {"app": "orision", "status": "running"}
