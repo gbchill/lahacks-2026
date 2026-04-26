@@ -8,6 +8,8 @@ The name "Orision" blends "Origin" and "Vision," reflecting the strength of fami
 
 Built at LA Hacks 2026.
 
+**Live Demo:** [https://orision.us](https://orision.us)
+
 ## The Problem
 
 25 million people in the US live in households where no adult speaks English well. Parents miss Medicaid renewal deadlines, misread USCIS notices, sign things they don't understand. Their kids translate starting at age 8 — a documented harm called "language brokering."

@@ -1,0 +1,22 @@
+{
+  "image": "medicaid-renewal-form.jpg",
+  "raw_url": "https://res.cloudinary.com/dyyjuq6gr/image/upload/v1777207239/orision/ab-test/photos/zsgvee6honvtujwifypr.jpg",
+  "enhanced_url": "https://res.cloudinary.com/dyyjuq6gr/image/upload/e_improve/e_sharpen:100/a_auto_right/e_grayscale/q_auto:best/f_auto/v1/orision/ab-test/photos/zsgvee6honvtujwifypr",
+  "raw_ocr_chars": 1366,
+  "enhanced_ocr_chars": 1366,
+  "raw_word_quality_pct": 79.3,
+  "enhanced_word_quality_pct": 79.3,
+  "raw_confidence": 1.0,
+  "enhanced_confidence": 0.99,
+  "improvement_pct": 0.0,
+  "transformations": [
+    "e_improve",
+    "e_sharpen:100",
+    "a_auto_right",
+    "e_grayscale",
+    "q_auto:best",
+    "f_auto"
+  ],
+  "raw_ocr_preview": "Medicaid Renewal Form\nSection 1: Your contact information\nName (first, middle, last & suffix):\nEmail address:\nHome address:\nMailing address:\nCity:\nCity:\nState:\nZIP code:\nState:\nZIP code:\nBest phone number to reach you:\nHome\nCell\nWork\nOther phone number, if you have one:\nHome\nCell\nWork\nNumber:\nNumber",
+  "enhanced_ocr_preview": "Medicaid Renewal Form\nSection 1: Your contact information\nName (first, middle, last & suffix):\nEmail address:\nHome address:\nMailing address:\nCity:\nCity:\nState:\nZIP code:\nState:\nZIP code:\nBest phone number to reach you:\nOther phone number, if you have one:\nHome\nCell\nWork\nHome\nCell\nWork\nNumber:\nNumber"
+}
