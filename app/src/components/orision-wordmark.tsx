@@ -47,7 +47,7 @@ export function OrisionWordmark({ size = "md", linked = true, className }: Orisi
   if (!linked) return content;
 
   return (
-    <Link to="/home" className="no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-lg">
+    <Link to="/" className="no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-lg">
       {content}
     </Link>
   );
