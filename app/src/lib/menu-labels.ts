@@ -23,6 +23,7 @@ export type MenuLabels = {
   documentsSubtitle: string;
   tagline: string;
   statText: string;
+  disclaimer: string;
 
   // Save-history
   saveHeading: string;
@@ -130,6 +131,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "Letters your family has saved",
     tagline: "For the families who never had a translator at home.",
     statText: "Millions of families face language barriers every day. We're here to make communication easier for everyone.",
+    disclaimer: "Orision is not responsible for the accuracy or authenticity of uploaded documents. Users should independently verify documents by contacting the issuing office directly.",
 
     saveHeading: "Save this for next time?",
     saveBody:
@@ -225,6 +227,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "家人保存的信件",
     tagline: "为那些从未在家中拥有翻译的家庭而设。",
     statText: "数百万家庭每天都面临语言障碍。我们在这里,让每个人的沟通都更轻松。",
+    disclaimer: "Orision 不对上传文件的准确性或真实性负责。用户应直接联系发出文件的办公室,独立核实文件内容。",
 
     saveHeading: "保存以备下次使用?",
     saveBody: "如果保存,下次的信件可以参考我们已经了解的家庭情况。",
@@ -318,6 +321,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "Cartas que tu familia ha guardado",
     tagline: "Para las familias que nunca tuvieron un traductor en casa.",
     statText: "Millones de familias enfrentan barreras de idioma cada día. Estamos aquí para hacer la comunicación más fácil para todos.",
+    disclaimer: "Orision no se hace responsable de la exactitud o autenticidad de los documentos cargados. Los usuarios deben verificar los documentos de forma independiente contactando directamente con la oficina emisora.",
 
     saveHeading: "¿Guardar para la próxima vez?",
     saveBody:
@@ -413,6 +417,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "Những lá thư gia đình đã lưu",
     tagline: "Dành cho những gia đình chưa bao giờ có người phiên dịch ở nhà.",
     statText: "Hàng triệu gia đình phải đối mặt với rào cản ngôn ngữ mỗi ngày. Chúng tôi ở đây để giúp việc giao tiếp dễ dàng hơn cho mọi người.",
+    disclaimer: "Orision không chịu trách nhiệm về tính chính xác hoặc tính xác thực của các tài liệu được tải lên. Người dùng nên tự xác minh tài liệu bằng cách liên hệ trực tiếp với văn phòng phát hành.",
 
     saveHeading: "Lưu cho lần sau?",
     saveBody:
@@ -508,6 +513,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "Scrisori salvate de familia dumneavoastră",
     tagline: "Pentru familiile care nu au avut niciodată un traducător acasă.",
     statText: "Milioane de familii se confruntă zilnic cu bariere lingvistice. Suntem aici pentru a face comunicarea mai ușoară pentru toți.",
+    disclaimer: "Orision nu este responsabilă pentru acuratețea sau autenticitatea documentelor încărcate. Utilizatorii trebuie să verifice documentele în mod independent contactând direct biroul emitent.",
 
     saveHeading: "Salvați pentru data viitoare?",
     saveBody:
