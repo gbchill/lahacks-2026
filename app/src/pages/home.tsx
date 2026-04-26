@@ -124,14 +124,6 @@ export function HomePage() {
         })}
       </div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.6, ease }}
-        className="text-xl sm:text-2xl text-muted-foreground/70 mt-auto pt-16 pb-8 max-w-md text-center leading-relaxed"
-      >
-        {labels.statText}
-      </motion.p>
     </div>
   );
 }

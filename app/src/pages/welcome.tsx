@@ -203,15 +203,10 @@ export function WelcomePage() {
           </motion.div>
         </section>
 
-        {/* Footer */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.6, ease }}
-          className="mt-10 mx-auto max-w-md text-center text-xl sm:text-2xl leading-relaxed text-muted-foreground"
-        >
-          {labels.statText}
-        </motion.p>
+        {/* Footer disclaimer */}
+        <p className="mt-10 mx-auto max-w-xl text-center text-xs leading-relaxed text-muted-foreground/70">
+          Orision is not responsible for the accuracy or authenticity of uploaded documents. Users should independently verify documents by contacting the issuing office directly.
+        </p>
       </div>
     </main>
   );
