@@ -28,7 +28,7 @@ const SLIDE_VARIANTS = {
 
 const SLIDE_TRANSITION = {
   duration: 0.28,
-  ease: [0.32, 0.72, 0, 1],
+  ease: [0.32, 0.72, 0, 1] as [number, number, number, number],
 };
 
 // ───────────────────────────────────────────────
