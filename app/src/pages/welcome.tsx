@@ -14,7 +14,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 
 const SUBTITLE_CYCLE = LANGUAGES.map((l) => {
   const labels = getLabels(l.code);
-  return { code: l.code, title: labels.welcomeTitle, text: labels.welcomeSubtitle };
+  return { code: l.code, title: labels.welcomeTitle, text: labels.welcomeSubtitle, voice: labels.voicePrompt };
 });
 
 export function WelcomePage() {
@@ -82,7 +82,7 @@ export function WelcomePage() {
   const handleContinue = () => {
     if (!pending) return;
     set(pending);
-    navigate("/", { replace: true });
+    navigate("/home", { replace: true });
   };
 
   const labels = getLabels(pending ?? code);
@@ -133,9 +133,20 @@ export function WelcomePage() {
             </AnimatePresence>
           </div>
 
-          <p className="mt-3 text-base text-muted-foreground max-w-md">
-            {labels.voicePrompt}
-          </p>
+          <div className="h-6 mt-3 overflow-hidden max-w-md">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={`voice-${current.code}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.4, ease }}
+                className="text-base text-muted-foreground"
+              >
+                {current.voice}
+              </motion.p>
+            </AnimatePresence>
+          </div>
 
           {/* Selector card */}
           <motion.div

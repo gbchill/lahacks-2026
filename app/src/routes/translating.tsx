@@ -262,7 +262,7 @@ export function TranslatingPage() {
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-2xl flex-col sm:min-h-[calc(100vh-8rem)]">
         <nav className="flex items-center justify-between">
           <Link
-            to="/"
+            to="/home"
             className="inline-flex h-11 items-center gap-2 rounded-full border border-border/60 bg-card/80 px-4 text-sm font-semibold text-foreground/70 shadow-sm backdrop-blur-sm transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <ArrowLeft className="h-4 w-4" />

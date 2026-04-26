@@ -8,24 +8,14 @@ import { SaveHistoryPage } from "./pages/save-history";
 import { SignupPage } from "./pages/signup";
 import { FamilyPage } from "./pages/family";
 import { TranslatingPage } from "./routes/translating";
-import { useLanguage } from "./contexts/language-context";
 
 export function App() {
-  const { code } = useLanguage();
-
-  if (!code) {
-    return (
-      <Routes>
-        <Route path="*" element={<WelcomePage />} />
-      </Routes>
-    );
-  }
-
   return (
     <Routes>
+      <Route path="/" element={<WelcomePage />} />
       <Route path="/translating" element={<TranslatingPage />} />
       <Route element={<AppShell />}>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/capture" element={<CapturePage />} />
         <Route path="/result/:documentId" element={<ResultPage />} />
         <Route path="/save-history" element={<SaveHistoryPage />} />

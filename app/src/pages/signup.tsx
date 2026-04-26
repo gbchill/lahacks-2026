@@ -18,7 +18,7 @@ export function SignupPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // No backend yet — just route home for now.
-    navigate("/", { replace: true });
+    navigate("/home", { replace: true });
   };
 
   return (
@@ -109,7 +109,7 @@ export function SignupPage() {
       </form>
 
       <Link
-        to="/"
+        to="/home"
         className="text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         {labels.signupSkip}

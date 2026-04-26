@@ -31,14 +31,14 @@ const CHOICES: Choice[] = [
     icon: EyeOff,
     titleKey: "dontSave",
     subKey: "dontSaveSub",
-    to: "/",
+    to: "/home",
   },
   {
     id: "later",
     icon: Clock,
     titleKey: "decideLater",
     subKey: "decideLaterSub",
-    to: "/",
+    to: "/home",
   },
 ];
 

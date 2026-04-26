@@ -10,13 +10,13 @@ export function Header() {
   const navigate = useNavigate();
   const labels = getLabels(code);
 
-  const onWelcome = location.pathname === "/welcome";
+  const onWelcome = location.pathname === "/";
 
   return (
     <header className="w-full border-b border-border/60 bg-background sticky top-0 z-50">
       <div className="mx-auto max-w-3xl flex items-center justify-between px-5 py-4">
         <Link
-          to="/"
+          to="/home"
           className="font-heading text-2xl text-foreground no-underline hover:opacity-80 transition-opacity"
         >
           Orision
@@ -25,7 +25,7 @@ export function Header() {
         {!onWelcome && (
           <button
             type="button"
-            onClick={() => navigate("/welcome")}
+            onClick={() => navigate("/")}
             aria-label={labels.goBack}
             className={cn(
               "inline-flex items-center gap-1.5 h-10 px-4 rounded-full border border-border bg-card",
