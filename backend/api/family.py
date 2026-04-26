@@ -1,10 +1,11 @@
 """Family memory endpoints — timeline + similar document search."""
+import asyncio
 import logging
 
 from bson import ObjectId
 from fastapi import APIRouter, Header, HTTPException
 
-from services import mongo
+from services import cloudinary_admin, mongo
 from services.supabase_admin import verify_jwt
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,34 @@ async def get_document(document_id: str, authorization: str = Header(...)):
     if doc is None:
         raise HTTPException(status_code=404, detail="Document not found")
     return doc
+
+
+@router.delete("/document/{document_id}")
+async def delete_document(document_id: str, authorization: str = Header(...)):
+    """Delete a document and its Cloudinary assets. Only the owner can delete."""
+    user_id = _extract_user(authorization)
+    deleted_doc = await mongo.delete_document(document_id, user_id)
+    if deleted_doc is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    cleanup_tasks = []
+    photo_public_id = deleted_doc.get("photo_public_id")
+    if not photo_public_id:
+        photo_url = deleted_doc.get("original_photo_url", "")
+        if photo_url:
+            photo_public_id = cloudinary_admin.extract_public_id_from_url(photo_url)
+    if photo_public_id:
+        cleanup_tasks.append(cloudinary_admin.delete_asset(photo_public_id, "image"))
+    audio_public_id = f"orision/{user_id}/audio/explanation_{document_id}"
+    cleanup_tasks.append(cloudinary_admin.delete_asset(audio_public_id, "video"))
+
+    if cleanup_tasks:
+        try:
+            await asyncio.gather(*cleanup_tasks)
+        except Exception as exc:
+            logger.warning("Cloudinary cleanup failed (non-critical) doc_id=%s: %s", document_id, exc)
+
+    return {"deleted": True, "document_id": document_id}
 
 
 @router.get("/similar/{document_id}")

@@ -263,10 +263,6 @@ export function WelcomePage() {
           </Link>
         </div>
 
-        {/* Footer disclaimer */}
-        <p className="mt-4 mx-auto max-w-xl text-center text-xs leading-relaxed text-muted-foreground/70">
-          {labels.disclaimer}
-        </p>
       </div>
     </main>
   );

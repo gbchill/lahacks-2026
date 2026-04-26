@@ -143,6 +143,28 @@ async def get_document_by_id(document_id: str) -> dict | None:
         return None
 
 
+async def delete_document(document_id: str, user_id: str) -> dict | None:
+    """Delete a document owned by user_id. Returns the deleted doc or None."""
+    db = _get_db()
+    if db is None:
+        return None
+    try:
+        doc = await db["documents"].find_one(
+            {"document_id": document_id, "user_id": user_id}
+        )
+        if doc is None:
+            return None
+        await db["documents"].delete_one(
+            {"document_id": document_id, "user_id": user_id}
+        )
+        doc["_id"] = str(doc["_id"])
+        logger.info("MongoDB document deleted: user=%s doc_id=%s", user_id, document_id)
+        return doc
+    except Exception as exc:
+        logger.warning("MongoDB delete_document failed: %s", exc)
+        return None
+
+
 async def get_timeline(user_id: str) -> list[dict]:
     db = _get_db()
     if db is None:

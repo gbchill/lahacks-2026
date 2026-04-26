@@ -1,9 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { fetchTimeline, type TimelineDoc } from "@/lib/family-api";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { fetchTimeline, deleteDocument, type TimelineDoc } from "@/lib/family-api";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
 
@@ -170,7 +180,13 @@ function UnauthenticatedState() {
   );
 }
 
-function TimelineCard({ doc }: { doc: TimelineDoc }) {
+function TimelineCard({
+  doc,
+  onDeleteRequest,
+}: {
+  doc: TimelineDoc;
+  onDeleteRequest: (docId: string) => void;
+}) {
   const docId = doc.document_id || doc._id;
   const snippet =
     doc.english_explanation.length > 180
@@ -178,38 +194,46 @@ function TimelineCard({ doc }: { doc: TimelineDoc }) {
       : doc.english_explanation;
 
   return (
-    <Link
-      to={`/result/${docId}`}
-      state={{
-        document_id: docId,
-        document_type: doc.document_type,
-        english_explanation: doc.english_explanation,
-        translated_explanation: doc.translated_explanation ?? "",
-        target_language: doc.target_language ?? "",
-        audio_url: doc.audio_url ?? "",
-        original_photo_url: doc.original_photo_url ?? "",
-        enhanced_photo_url: doc.enhanced_photo_url ?? "",
-        key_facts: doc.key_facts ?? {},
-        similar_past_documents: [],
-        pipeline_timing_ms: {},
-      }}
-      className="block rounded-2xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5 px-5 pt-4 pb-5 active:scale-[0.98] transition-transform"
-    >
-      <div className="flex flex-wrap items-center gap-3 mb-3">
-        <Badge
-          className="bg-primary text-primary-foreground text-sm font-medium px-3 py-1 rounded-full"
-        >
-          {docTypeLabel(doc.document_type)}
-        </Badge>
-        <time
-          className="text-muted-foreground text-base"
-          dateTime={doc.created_at}
-        >
-          {formatDate(doc.created_at)}
-        </time>
-      </div>
-      <p className="text-foreground text-base leading-relaxed">{snippet}</p>
-    </Link>
+    <div className="relative group rounded-2xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5">
+      <Link
+        to={`/result/${docId}`}
+        state={{
+          document_id: docId,
+          document_type: doc.document_type,
+          english_explanation: doc.english_explanation,
+          translated_explanation: doc.translated_explanation ?? "",
+          target_language: doc.target_language ?? "",
+          audio_url: doc.audio_url ?? "",
+          original_photo_url: doc.original_photo_url ?? "",
+          enhanced_photo_url: doc.enhanced_photo_url ?? "",
+          key_facts: doc.key_facts ?? {},
+          similar_past_documents: [],
+          pipeline_timing_ms: {},
+        }}
+        className="block px-5 pt-4 pb-5 pr-14 active:scale-[0.98] transition-transform"
+      >
+        <div className="flex flex-wrap items-center gap-3 mb-3">
+          <Badge className="bg-primary text-primary-foreground text-sm font-medium px-3 py-1 rounded-full">
+            {docTypeLabel(doc.document_type)}
+          </Badge>
+          <time
+            className="text-muted-foreground text-base"
+            dateTime={doc.created_at}
+          >
+            {formatDate(doc.created_at)}
+          </time>
+        </div>
+        <p className="text-foreground text-base leading-relaxed">{snippet}</p>
+      </Link>
+      <button
+        type="button"
+        onClick={() => onDeleteRequest(docId)}
+        aria-label="Delete document"
+        className="absolute top-3 right-3 w-11 h-11 rounded-xl flex items-center justify-center text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors"
+      >
+        <Trash2 className="w-4 h-4" strokeWidth={1.5} />
+      </button>
+    </div>
   );
 }
 
@@ -218,6 +242,8 @@ export function FamilyPage() {
   const [docs, setDocs] = useState<TimelineDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const load = () => {
     if (!session?.access_token) return;
@@ -233,6 +259,22 @@ export function FamilyPage() {
         setLoading(false);
       });
   };
+
+  async function handleDelete(docId: string) {
+    if (!session?.access_token) return;
+    const previous = docs;
+    setDocs((prev) => prev.filter((d) => (d.document_id || d._id) !== docId));
+    setDeletingId(null);
+    setDeleteError(null);
+    try {
+      await deleteDocument(session.access_token, docId);
+    } catch (err) {
+      setDocs(previous);
+      setDeleteError(
+        err instanceof Error ? err.message : "Failed to delete document",
+      );
+    }
+  }
 
   useEffect(() => {
     if (session?.access_token) {
@@ -255,6 +297,26 @@ export function FamilyPage() {
         </h1>
       </motion.header>
 
+      <AnimatePresence>
+        {deleteError && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="rounded-xl bg-destructive/10 text-destructive px-4 py-3 text-base flex items-center justify-between"
+          >
+            <span>{deleteError}</span>
+            <button
+              onClick={() => setDeleteError(null)}
+              aria-label="Dismiss error"
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-destructive/10"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {!user && <UnauthenticatedState />}
 
       {user && loading && <TimelineSkeleton />}
@@ -265,18 +327,56 @@ export function FamilyPage() {
 
       {user && !loading && !error && docs.length > 0 && (
         <ol className="space-y-4" aria-label="Document timeline">
-          {docs.map((doc, i) => (
-            <motion.li
-              key={doc._id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.06, ease }}
-            >
-              <TimelineCard doc={doc} />
-            </motion.li>
-          ))}
+          <AnimatePresence mode="popLayout">
+            {docs.map((doc, i) => (
+              <motion.li
+                key={doc.document_id || doc._id}
+                layout
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, x: -24, transition: { duration: 0.2 } }}
+                transition={{ duration: 0.4, delay: i * 0.06, ease }}
+              >
+                <TimelineCard doc={doc} onDeleteRequest={setDeletingId} />
+              </motion.li>
+            ))}
+          </AnimatePresence>
         </ol>
       )}
+
+      <Dialog
+        open={deletingId !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeletingId(null);
+        }}
+      >
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Delete this document?</DialogTitle>
+            <DialogDescription>
+              This will permanently remove the document and its audio
+              explanation. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="destructive"
+              onClick={() => deletingId && handleDelete(deletingId)}
+              className="h-12 text-base"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </Button>
+            <DialogClose
+              render={
+                <Button variant="outline" className="h-12 text-base" />
+              }
+            >
+              Keep it
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

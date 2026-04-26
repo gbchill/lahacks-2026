@@ -11,6 +11,7 @@ import { TranslatingPage } from "./routes/translating";
 import { LoginPage } from "./pages/login";
 import { AccountPage } from "./pages/account";
 import { OnboardingPage } from "./pages/onboarding";
+import { AuthCallbackPage } from "./pages/auth-callback";
 
 export function App() {
   return (
@@ -20,6 +21,7 @@ export function App() {
       <Route path="/translating" element={<TranslatingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
       {/* AppShell (with bottom tab bar) */}
       <Route element={<AppShell />}>

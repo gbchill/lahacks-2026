@@ -25,7 +25,7 @@ export type MenuLabels = {
   documentsSubtitle: string;
   tagline: string;
   statText: string;
-  disclaimer: string;
+  termsAgree: string;
 
   // Save-history
   saveHeading: string;
@@ -59,6 +59,7 @@ export type MenuLabels = {
   emailPlaceholder: string;
   passwordPlaceholder: string;
   back: string;
+  continueWithGoogle: string;
 
   // Capture
   captureHeading: string;
@@ -167,6 +168,17 @@ export type MenuLabels = {
   callEnd: string;
   callAgain: string;
   callPhoneLabel: string;
+
+  // Chat section (home page)
+  chatTitle: string;
+  chatSubtitle: string;
+  chatPlaceholder: string;
+  chatSendLabel: string;
+  chatEmptyTitle: string;
+  chatEmptyBody: string;
+  chatEmptyLink: string;
+  chatThinking: string;
+  chatError: string;
 };
 
 export const MENU_LABELS: Record<string, MenuLabels> = {
@@ -193,7 +205,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "Letters your family has saved",
     tagline: "For the families who never had a translator at home.",
     statText: "Millions of families face language barriers every day. We're here to make communication easier for everyone.",
-    disclaimer: "Orision is not responsible for the accuracy or authenticity of uploaded documents. Users should independently verify documents by contacting the issuing office directly.",
+    termsAgree: "I agree to the Orision Terms of Service",
 
     saveHeading: "Save this for next time?",
     saveBody:
@@ -224,6 +236,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     emailPlaceholder: "Email address",
     passwordPlaceholder: "Password",
     back: "Back",
+    continueWithGoogle: "Continue with Google",
 
     captureHeading: "What document did you receive?",
     captureSubtitle: "Snap a photo and we'll explain it in your language.",
@@ -320,6 +333,16 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callEnd: "End Call",
     callAgain: "Call Again",
     callPhoneLabel: "Office phone number",
+
+    chatTitle: "Ask about your documents",
+    chatSubtitle: "I know all your family's letters",
+    chatPlaceholder: "Ask anything about your documents…",
+    chatSendLabel: "Send",
+    chatEmptyTitle: "Scan your first document to start chatting",
+    chatEmptyBody: "Once you've scanned a letter, I can answer questions about it in your language.",
+    chatEmptyLink: "Scan a document",
+    chatThinking: "Thinking…",
+    chatError: "Something went wrong. Please try again.",
   },
   "zh-CN": {
     welcomeTitle: "欢迎",
@@ -344,7 +367,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "家人保存的信件",
     tagline: "为那些从未在家中拥有翻译的家庭而设。",
     statText: "数百万家庭每天都面临语言障碍。我们在这里,让每个人的沟通都更轻松。",
-    disclaimer: "Orision 不对上传文件的准确性或真实性负责。用户应直接联系发出文件的办公室,独立核实文件内容。",
+    termsAgree: "我同意 Orision 服务条款",
 
     saveHeading: "保存以备下次使用?",
     saveBody: "如果保存,下次的信件可以参考我们已经了解的家庭情况。",
@@ -374,6 +397,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     emailPlaceholder: "电子邮箱",
     passwordPlaceholder: "密码",
     back: "返回",
+    continueWithGoogle: "通过 Google 继续",
 
     captureHeading: "您收到了什么文件？",
     captureSubtitle: "拍张照片，我们用您的语言为您解释。",
@@ -469,6 +493,16 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callEnd: "结束通话",
     callAgain: "再次通话",
     callPhoneLabel: "办公室电话号码",
+
+    chatTitle: "询问您的文件",
+    chatSubtitle: "我了解您家庭的所有信件",
+    chatPlaceholder: "询问有关文件的任何问题…",
+    chatSendLabel: "发送",
+    chatEmptyTitle: "扫描您的第一份文件以开始聊天",
+    chatEmptyBody: "扫描信件后,我可以用您的语言回答相关问题。",
+    chatEmptyLink: "扫描文件",
+    chatThinking: "思考中…",
+    chatError: "出现问题,请重试。",
   },
   es: {
     welcomeTitle: "Bienvenido",
@@ -493,7 +527,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "Cartas que tu familia ha guardado",
     tagline: "Para las familias que nunca tuvieron un traductor en casa.",
     statText: "Millones de familias enfrentan barreras de idioma cada día. Estamos aquí para hacer la comunicación más fácil para todos.",
-    disclaimer: "Orision no se hace responsable de la exactitud o autenticidad de los documentos cargados. Los usuarios deben verificar los documentos de forma independiente contactando directamente con la oficina emisora.",
+    termsAgree: "Acepto los Términos de Servicio de Orision",
 
     saveHeading: "¿Guardar para la próxima vez?",
     saveBody:
@@ -524,6 +558,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     emailPlaceholder: "Correo electrónico",
     passwordPlaceholder: "Contraseña",
     back: "Atrás",
+    continueWithGoogle: "Continuar con Google",
 
     captureHeading: "¿Qué documento recibiste?",
     captureSubtitle: "Toma una foto y te lo explicamos en tu idioma.",
@@ -620,6 +655,16 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callEnd: "Finalizar llamada",
     callAgain: "Llamar de nuevo",
     callPhoneLabel: "Número de la oficina",
+
+    chatTitle: "Pregunta sobre tus documentos",
+    chatSubtitle: "Conozco todas las cartas de tu familia",
+    chatPlaceholder: "Pregunta cualquier cosa sobre tus documentos…",
+    chatSendLabel: "Enviar",
+    chatEmptyTitle: "Escanea tu primer documento para chatear",
+    chatEmptyBody: "Después de escanear una carta, puedo responder preguntas en tu idioma.",
+    chatEmptyLink: "Escanear un documento",
+    chatThinking: "Pensando…",
+    chatError: "Algo salió mal. Intenta de nuevo.",
   },
   vi: {
     welcomeTitle: "Chào mừng",
@@ -644,7 +689,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "Những lá thư gia đình đã lưu",
     tagline: "Dành cho những gia đình chưa bao giờ có người phiên dịch ở nhà.",
     statText: "Hàng triệu gia đình phải đối mặt với rào cản ngôn ngữ mỗi ngày. Chúng tôi ở đây để giúp việc giao tiếp dễ dàng hơn cho mọi người.",
-    disclaimer: "Orision không chịu trách nhiệm về tính chính xác hoặc tính xác thực của các tài liệu được tải lên. Người dùng nên tự xác minh tài liệu bằng cách liên hệ trực tiếp với văn phòng phát hành.",
+    termsAgree: "Tôi đồng ý với Điều khoản Dịch vụ của Orision",
 
     saveHeading: "Lưu cho lần sau?",
     saveBody:
@@ -675,6 +720,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     emailPlaceholder: "Địa chỉ email",
     passwordPlaceholder: "Mật khẩu",
     back: "Trở lại",
+    continueWithGoogle: "Tiếp tục với Google",
 
     captureHeading: "Bạn đã nhận được tài liệu gì?",
     captureSubtitle: "Chụp ảnh và chúng tôi sẽ giải thích bằng ngôn ngữ của bạn.",
@@ -771,6 +817,16 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callEnd: "Kết thúc gọi",
     callAgain: "Gọi lại",
     callPhoneLabel: "Số điện thoại văn phòng",
+
+    chatTitle: "Hỏi về tài liệu của bạn",
+    chatSubtitle: "Tôi biết tất cả thư của gia đình bạn",
+    chatPlaceholder: "Hỏi bất cứ điều gì về tài liệu…",
+    chatSendLabel: "Gửi",
+    chatEmptyTitle: "Quét tài liệu đầu tiên để bắt đầu trò chuyện",
+    chatEmptyBody: "Sau khi quét thư, tôi có thể trả lời câu hỏi bằng ngôn ngữ của bạn.",
+    chatEmptyLink: "Quét tài liệu",
+    chatThinking: "Đang suy nghĩ…",
+    chatError: "Đã xảy ra lỗi. Vui lòng thử lại.",
   },
   ro: {
     welcomeTitle: "Bun venit",
@@ -795,7 +851,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     documentsSubtitle: "Scrisori salvate de familia dumneavoastră",
     tagline: "Pentru familiile care nu au avut niciodată un traducător acasă.",
     statText: "Milioane de familii se confruntă zilnic cu bariere lingvistice. Suntem aici pentru a face comunicarea mai ușoară pentru toți.",
-    disclaimer: "Orision nu este responsabilă pentru acuratețea sau autenticitatea documentelor încărcate. Utilizatorii trebuie să verifice documentele în mod independent contactând direct biroul emitent.",
+    termsAgree: "Sunt de acord cu Termenii de Serviciu Orision",
 
     saveHeading: "Salvați pentru data viitoare?",
     saveBody:
@@ -826,6 +882,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     emailPlaceholder: "Adresă de email",
     passwordPlaceholder: "Parolă",
     back: "Înapoi",
+    continueWithGoogle: "Continuați cu Google",
 
     captureHeading: "Ce document ați primit?",
     captureSubtitle: "Faceți o fotografie și vi-l explicăm în limba dumneavoastră.",
@@ -922,6 +979,16 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     callEnd: "Încheiați apelul",
     callAgain: "Sunați din nou",
     callPhoneLabel: "Numărul de telefon al biroului",
+
+    chatTitle: "Întrebați despre documentele dvs.",
+    chatSubtitle: "Cunosc toate scrisorile familiei dvs.",
+    chatPlaceholder: "Întrebați orice despre documentele dvs…",
+    chatSendLabel: "Trimite",
+    chatEmptyTitle: "Scanați primul document pentru a începe conversația",
+    chatEmptyBody: "După ce scanați o scrisoare, pot răspunde la întrebări în limba dvs.",
+    chatEmptyLink: "Scanați un document",
+    chatThinking: "Se gândește…",
+    chatError: "Ceva a mers greșit. Vă rugăm să încercați din nou.",
   },
 };
 

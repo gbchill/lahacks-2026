@@ -92,6 +92,39 @@ async def upload_audio(audio_bytes: bytes, user_id: str, doc_id: str) -> str:
     return await asyncio.to_thread(_upload_audio_sync, audio_bytes, user_id, doc_id)
 
 
+def extract_public_id_from_url(url: str) -> str | None:
+    """Extract Cloudinary public_id from a secure_url."""
+    try:
+        parts = url.split("/upload/")
+        if len(parts) != 2:
+            return None
+        after_upload = parts[1]
+        # Strip version prefix (v1234567890/)
+        if after_upload.startswith("v") and "/" in after_upload:
+            after_upload = after_upload.split("/", 1)[1]
+        # Strip file extension
+        dot = after_upload.rfind(".")
+        if dot != -1:
+            after_upload = after_upload[:dot]
+        return after_upload or None
+    except Exception:
+        return None
+
+
+def _delete_asset_sync(public_id: str, resource_type: str = "image") -> dict:
+    _configure()
+    result = cloudinary.uploader.destroy(public_id, resource_type=resource_type)
+    logger.info(
+        "Cloudinary asset deleted: public_id=%s resource_type=%s result=%s",
+        public_id, resource_type, result.get("result"),
+    )
+    return result
+
+
+async def delete_asset(public_id: str, resource_type: str = "image") -> dict:
+    return await asyncio.to_thread(_delete_asset_sync, public_id, resource_type)
+
+
 def redact_pii_preview(public_id: str) -> str:
     _configure()
     try:

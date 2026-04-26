@@ -47,6 +47,20 @@ export async function fetchDocument(
   return res.json() as Promise<TimelineDoc>;
 }
 
+export async function deleteDocument(
+  token: string,
+  documentId: string,
+): Promise<void> {
+  const res = await fetch(`${BACKEND_URL}/family/document/${documentId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.detail ?? `Delete failed: ${res.status}`);
+  }
+}
+
 export async function fetchSimilar(
   token: string,
   documentId: string,

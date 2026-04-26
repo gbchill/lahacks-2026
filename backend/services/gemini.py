@@ -225,3 +225,38 @@ async def embed_text(text: str) -> list[float]:
     except Exception as exc:
         logger.warning("Gemini embedding failed (non-critical, pipeline continues): %s", exc)
         return []
+
+
+async def chat_with_documents(
+    message: str,
+    document_context: str,
+    history: list[dict],
+    language: str = "en",
+) -> str:
+    """Multi-turn chat grounded in the user's document history."""
+    client = _get_client()
+    lang_name = _LANGUAGE_NAMES.get(language, language)
+
+    system_prompt = (
+        "You are a warm, patient assistant helping an immigrant family understand "
+        "their US government documents.\n"
+        f"Always respond in {lang_name}. Be concise — 2-4 sentences unless more detail is needed.\n"
+        "Never invent legal specifics not found in the documents. If something is unclear, say so kindly.\n\n"
+        f"The family's document history:\n{document_context}"
+    )
+
+    contents = []
+    for turn in history:
+        role = "model" if turn["role"] == "assistant" else "user"
+        contents.append(types.Content(role=role, parts=[types.Part.from_text(text=turn["content"])]))
+    contents.append(types.Content(role="user", parts=[types.Part.from_text(text=message)]))
+
+    response = await client.aio.models.generate_content(
+        model=MODEL,
+        contents=contents,
+        config=types.GenerateContentConfig(
+            system_instruction=system_prompt,
+            temperature=0.4,
+        ),
+    )
+    return response.text.strip()

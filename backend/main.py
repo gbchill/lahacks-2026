@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from api import documents, calls, family, language, voice
+from api import documents, calls, family, language, voice, chat
 
 _bureau_task: asyncio.Task | None = None
 
@@ -69,6 +69,7 @@ app.include_router(calls.router, prefix="/calls", tags=["calls"])
 app.include_router(family.router, prefix="/family", tags=["family"])
 app.include_router(language.router, prefix="/language", tags=["language"])
 app.include_router(voice.router, prefix="/voice", tags=["voice"])
+app.include_router(chat.router, prefix="/chat", tags=["chat"])
 
 # MCP server — mounted at /mcp for Cognition prize
 from mcp_server.server import mcp as mcp_server

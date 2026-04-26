@@ -1,17 +1,33 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ScanLine, PhoneCall, FolderHeart } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/contexts/auth-context";
 import { getLabels } from "@/lib/menu-labels";
+import { fetchTimeline } from "@/lib/family-api";
+import { HomeChat } from "@/components/home-chat";
 import { cn } from "@/lib/utils";
 
+const TERMS_KEY = "orision-terms-agreed";
 const ease = [0.16, 1, 0.3, 1] as const;
 
 export function HomePage() {
   const { code } = useLanguage();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const labels = getLabels(code);
+  const [hasDocuments, setHasDocuments] = useState(false);
+  const [termsAgreed, setTermsAgreed] = useState(() => localStorage.getItem(TERMS_KEY) === "true");
+
+  useEffect(() => {
+    if (!session?.access_token) {
+      setHasDocuments(false);
+      return;
+    }
+    fetchTimeline(session.access_token)
+      .then((docs) => setHasDocuments(docs.length > 0))
+      .catch(() => setHasDocuments(false));
+  }, [session?.access_token]);
 
   const name = user?.user_metadata?.name as string | undefined;
 
@@ -33,6 +49,23 @@ export function HomePage() {
           </p>
         )}
       </motion.div>
+
+      {!termsAgreed && (
+        <label className="flex items-center gap-2.5 -mt-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={termsAgreed}
+            onChange={(e) => {
+              setTermsAgreed(e.target.checked);
+              localStorage.setItem(TERMS_KEY, String(e.target.checked));
+            }}
+            className="h-5 w-5 rounded border-white/20 bg-card/60 accent-primary shrink-0"
+          />
+          <span className="text-xs leading-relaxed text-muted-foreground/70">
+            {labels.termsAgree}
+          </span>
+        </label>
+      )}
 
       {/* Hero card — Scan a letter (full width) */}
       <motion.div
@@ -122,6 +155,7 @@ export function HomePage() {
         })}
       </div>
 
+      <HomeChat hasDocuments={hasDocuments} />
     </div>
   );
 }
