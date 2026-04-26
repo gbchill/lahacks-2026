@@ -16,7 +16,9 @@ export function Header() {
   return (
     <header className="w-full border-b border-border/60 bg-background sticky top-0 z-50">
       <div className="mx-auto max-w-3xl flex items-center justify-between px-5 py-4">
-        <OrisionWordmark size="md" />
+        <button type="button" onClick={() => navigate("/")} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded">
+          <OrisionWordmark size="md" />
+        </button>
 
         {!onWelcome && (
           <button
