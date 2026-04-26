@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-from api import documents, calls, family
+from api import documents, calls, family, language
 
 load_dotenv()
 
@@ -65,6 +65,7 @@ app.add_middleware(
 app.include_router(documents.router, prefix="/documents", tags=["documents"])
 app.include_router(calls.router, prefix="/calls", tags=["calls"])
 app.include_router(family.router, prefix="/family", tags=["family"])
+app.include_router(language.router, prefix="/language", tags=["language"])
 
 # MCP server — mounted at /mcp for Cognition prize
 from mcp_server.server import mcp as mcp_server
