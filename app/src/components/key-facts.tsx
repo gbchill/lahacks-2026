@@ -49,9 +49,13 @@ export function KeyFacts({ facts }: KeyFactsProps) {
     },
   ];
 
+  const visibleCards = cards.filter((card) => card.value);
+
+  if (visibleCards.length === 0) return null;
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-      {cards.map((card) => (
+    <div className={cn("grid gap-3", visibleCards.length === 1 ? "grid-cols-1" : visibleCards.length === 2 ? "grid-cols-2" : "grid-cols-1 sm:grid-cols-3")}>
+      {visibleCards.map((card) => (
         <div
           key={card.label}
           className={cn(
@@ -78,13 +82,8 @@ export function KeyFacts({ facts }: KeyFactsProps) {
               {card.label}
             </span>
           </div>
-          <p
-            className={cn(
-              "text-base font-medium",
-              card.value ? "text-foreground" : "text-muted-foreground/40",
-            )}
-          >
-            {card.value ?? "—"}
+          <p className="text-base font-medium text-foreground">
+            {card.value}
           </p>
         </div>
       ))}

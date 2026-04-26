@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Globe, Mic } from "lucide-react";
+import { ArrowRight, Mic } from "lucide-react";
+import { OrisionWordmark } from "@/components/orision-wordmark";
 import { toast } from "sonner";
 import { LanguageDropdown } from "@/components/language-picker";
 import { useLanguage } from "@/contexts/language-context";
@@ -89,15 +90,9 @@ export function WelcomePage() {
   const current = SUBTITLE_CYCLE[subtitleIndex];
 
   return (
-    <main className="flex min-h-screen flex-col overflow-hidden bg-background px-6 py-10 sm:py-16">
-      {/* Brand header — pinned to top-left of the viewport */}
-      <header className="flex items-center justify-center gap-3">
-        <span className="animate-orision-float h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-          <Globe className="h-6 w-6" strokeWidth={2.5} />
-        </span>
-        <span className="text-3xl tracking-tight text-foreground/70">
-          Orision
-        </span>
+    <main className="flex min-h-screen flex-col overflow-hidden bg-background px-6 py-6 sm:py-10">
+      <header className="flex items-center">
+        <OrisionWordmark size="md" linked={false} />
       </header>
 
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
@@ -155,7 +150,7 @@ export function WelcomePage() {
             transition={{ duration: 0.6, delay: 0.2, ease }}
             className={cn(
               "mt-10 w-full max-w-lg rounded-3xl border border-border/60",
-              "bg-card/80 backdrop-blur-sm p-5 sm:p-6",
+              "bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5 p-5 sm:p-6",
             )}
             style={{
               boxShadow:
@@ -211,7 +206,7 @@ export function WelcomePage() {
               onClick={handleContinue}
               disabled={!pending}
               className={cn(
-                "group mt-6 w-full h-16 rounded-2xl bg-primary text-primary-foreground",
+                "group mt-6 w-full h-16 rounded-xl bg-primary text-primary-foreground",
                 "text-xl font-semibold inline-flex items-center justify-center gap-2 cursor-pointer",
                 "transition-all duration-200",
                 "hover:bg-primary/90 hover:scale-[1.015]",
@@ -258,8 +253,18 @@ export function WelcomePage() {
           </motion.div>
         </section>
 
+        {/* Sign-in link */}
+        <div className="mt-8 text-center">
+          <Link
+            to="/login"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {labels.welcomeSignIn}
+          </Link>
+        </div>
+
         {/* Footer disclaimer */}
-        <p className="mt-10 mx-auto max-w-xl text-center text-xs leading-relaxed text-muted-foreground/70">
+        <p className="mt-4 mx-auto max-w-xl text-center text-xs leading-relaxed text-muted-foreground/70">
           {labels.disclaimer}
         </p>
       </div>

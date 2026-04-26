@@ -8,9 +8,9 @@ import { useLanguage } from "@/contexts/language-context";
 import { getLabels } from "@/lib/menu-labels";
 import { cn } from "@/lib/utils";
 
-export function SignupPage() {
+export function LoginPage() {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signIn } = useAuth();
   const { code } = useLanguage();
   const labels = getLabels(code);
 
@@ -23,26 +23,12 @@ export function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
-      return;
-    }
-
     setLoading(true);
     try {
-      await signUp(email, password);
-      navigate("/onboarding", { replace: true });
+      await signIn(email, password);
+      navigate("/home", { replace: true });
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Sign up failed. Please try again.";
-      // Surface friendly messages for common Supabase errors
-      if (msg.toLowerCase().includes("already registered") || msg.toLowerCase().includes("user already exists")) {
-        setError("An account with this email already exists. Try signing in.");
-      } else if (msg.toLowerCase().includes("password")) {
-        setError("Password is too weak. Use at least 8 characters.");
-      } else {
-        setError(msg);
-      }
+      setError(err instanceof Error ? err.message : "Sign in failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -70,7 +56,7 @@ export function SignupPage() {
         )}
       >
         <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-6">
-          {labels.signupHeading}
+          {labels.loginHeading}
         </h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -93,9 +79,8 @@ export function SignupPage() {
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              autoComplete="new-password"
+              autoComplete="current-password"
               required
-              minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={labels.passwordPlaceholder}
@@ -137,26 +122,26 @@ export function SignupPage() {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
             )}
           >
-            {loading ? "…" : labels.signupSubmit}
+            {loading ? "…" : labels.loginSubmit}
           </button>
         </form>
 
         {/* Bottom links inside card */}
         <div className="mt-6 flex flex-col items-center gap-2">
           <p className="text-sm text-muted-foreground">
-            {labels.signupHasAccount}{" "}
+            {labels.loginNoAccount}{" "}
             <Link
-              to="/login"
+              to="/signup"
               className="text-foreground hover:text-primary transition-colors font-medium"
             >
-              {labels.signupSignIn}
+              {labels.loginCreateAccount}
             </Link>
           </p>
           <Link
             to="/home"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            {labels.signupSkip}
+            {labels.loginContinueWithout}
           </Link>
         </div>
       </motion.div>

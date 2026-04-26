@@ -56,6 +56,21 @@ async def save_document(
         return ""
 
 
+async def update_document_field(
+    document_id: str, field: str, value: object
+) -> None:
+    db = _get_db()
+    if db is None:
+        return
+    try:
+        await db["documents"].update_one(
+            {"document_id": document_id},
+            {"$set": {field: value}},
+        )
+    except Exception as exc:
+        logger.warning("MongoDB update_document_field failed: %s", exc)
+
+
 async def find_similar(
     user_id: str, embedding: list[float] | None = None, k: int = 5
 ) -> list[dict]:
@@ -110,6 +125,22 @@ async def find_similar(
     except Exception as exc:
         logger.warning("MongoDB find_similar failed (non-critical): %s", exc)
         return []
+
+
+async def get_document_by_id(document_id: str) -> dict | None:
+    db = _get_db()
+    if db is None:
+        return None
+    try:
+        doc = await db["documents"].find_one({"document_id": document_id})
+        if doc is None:
+            return None
+        doc["_id"] = str(doc["_id"])
+        doc.pop("embedding", None)
+        return doc
+    except Exception as exc:
+        logger.warning("MongoDB get_document_by_id failed: %s", exc)
+        return None
 
 
 async def get_timeline(user_id: str) -> list[dict]:

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, Download } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import { getLabels } from "@/lib/menu-labels";
 import { cn } from "@/lib/utils";
@@ -138,9 +138,30 @@ export function AudioPlayer({ src, label }: AudioPlayerProps) {
           <span className="font-mono text-xs text-muted-foreground">
             {formatTime(currentTime)}
           </span>
-          <span className="font-mono text-xs text-muted-foreground">
-            {duration > 0 ? formatTime(duration) : "—"}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-muted-foreground">
+              {duration > 0 ? formatTime(duration) : "—"}
+            </span>
+            <button
+              type="button"
+              aria-label="Download audio"
+              onClick={() => {
+                fetch(src)
+                  .then((res) => res.blob())
+                  .then((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "explanation.mp3";
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  });
+              }}
+              className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" strokeWidth={1.5} />
+            </button>
+          </div>
         </div>
 
         {label && (

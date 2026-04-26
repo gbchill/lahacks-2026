@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { fetchTimeline, type TimelineDoc } from "@/lib/family-api";
+import { useAuth } from "@/contexts/auth-context";
+import { cn } from "@/lib/utils";
 
-const USER_ID = "demo-user";
+const ease = [0.16, 1, 0.3, 1] as const;
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -28,18 +29,17 @@ function TimelineSkeleton() {
   return (
     <div className="space-y-4">
       {[1, 2, 3].map((i) => (
-        <Card key={i} className="border border-border">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-5 w-24 rounded-full" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-4 w-full mb-2" />
-            <Skeleton className="h-4 w-3/4" />
-          </CardContent>
-        </Card>
+        <div
+          key={i}
+          className="rounded-2xl bg-white/5 animate-pulse p-5 space-y-3"
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-5 w-24 rounded-full bg-white/10" />
+            <div className="h-4 w-32 rounded bg-white/10" />
+          </div>
+          <div className="h-4 w-full rounded bg-white/10" />
+          <div className="h-4 w-3/4 rounded bg-white/10" />
+        </div>
       ))}
     </div>
   );
@@ -47,14 +47,19 @@ function TimelineSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[40vh] text-center px-4">
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center min-h-[40vh] text-center px-6 py-10",
+        "rounded-2xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5",
+      )}
+    >
       <div
-        className="w-20 h-20 rounded-full flex items-center justify-center mb-6 bg-accent text-primary"
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-5 bg-primary/10 text-primary"
         aria-hidden="true"
       >
         <svg
-          width="36"
-          height="36"
+          width="28"
+          height="28"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -69,10 +74,10 @@ function EmptyState() {
           <polyline points="10 9 9 9 8 9" />
         </svg>
       </div>
-      <h3 className="font-heading text-2xl text-foreground mb-3">
+      <h3 className="text-xl font-semibold text-foreground mb-2">
         No documents yet
       </h3>
-      <p className="text-muted-foreground text-lg leading-relaxed max-w-xs">
+      <p className="text-base text-muted-foreground leading-relaxed max-w-xs">
         Upload your first document to get started. We'll keep a clear record of
         everything here for your family.
       </p>
@@ -82,14 +87,19 @@ function EmptyState() {
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[40vh] text-center px-4">
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center min-h-[40vh] text-center px-6 py-10",
+        "rounded-2xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5",
+      )}
+    >
       <div
-        className="w-20 h-20 rounded-full flex items-center justify-center mb-6 bg-destructive/10 text-destructive"
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-5 bg-destructive/10 text-destructive"
         aria-hidden="true"
       >
         <svg
-          width="36"
-          height="36"
+          width="28"
+          height="28"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -102,15 +112,15 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
       </div>
-      <h3 className="font-heading text-2xl text-foreground mb-3">
+      <h3 className="text-xl font-semibold text-foreground mb-2">
         Couldn't load documents
       </h3>
-      <p className="text-muted-foreground text-lg mb-6 max-w-xs">
+      <p className="text-base text-muted-foreground mb-5 max-w-xs">
         There was a problem connecting to the server. Please try again.
       </p>
       <Button
         onClick={onRetry}
-        className="bg-primary hover:bg-primary-hover text-primary-foreground px-8 py-3 text-lg h-auto"
+        className="rounded-xl bg-primary text-primary-foreground h-12 px-6 font-medium hover:brightness-105 transition-all"
       >
         Try again
       </Button>
@@ -118,81 +128,102 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   );
 }
 
+function UnauthenticatedState() {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center min-h-[40vh] text-center px-6 py-10",
+        "rounded-2xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5",
+      )}
+    >
+      <div
+        className="w-16 h-16 rounded-full flex items-center justify-center mb-5 bg-primary/10 text-primary"
+        aria-hidden="true"
+      >
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </div>
+      <h3 className="text-xl font-semibold text-foreground mb-2">
+        Sign in to view your documents
+      </h3>
+      <p className="text-base text-muted-foreground mb-5 max-w-xs">
+        Create a free account to keep a record of every document your family has received.
+      </p>
+      <Link
+        to="/login"
+        className="rounded-xl bg-primary text-primary-foreground h-12 px-6 font-medium hover:brightness-105 transition-all inline-flex items-center justify-center text-sm"
+      >
+        Sign in
+      </Link>
+    </div>
+  );
+}
+
 function TimelineCard({ doc }: { doc: TimelineDoc }) {
-  const [audioOpen, setAudioOpen] = useState(false);
+  const docId = doc.document_id || doc._id;
   const snippet =
     doc.english_explanation.length > 180
       ? doc.english_explanation.slice(0, 180).trimEnd() + "…"
       : doc.english_explanation;
 
   return (
-    <Card className="border border-border bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
-      <CardHeader className="pb-2 pt-4 px-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <Badge
-            className="bg-primary text-primary-foreground text-sm font-medium px-3 py-1 rounded-full"
-          >
-            {docTypeLabel(doc.document_type)}
-          </Badge>
-          <time
-            className="text-muted-foreground text-base"
-            dateTime={doc.created_at}
-          >
-            {formatDate(doc.created_at)}
-          </time>
-        </div>
-      </CardHeader>
-      <CardContent className="px-5 pb-5">
-        <p className="text-foreground text-lg leading-relaxed mb-4">{snippet}</p>
-        {doc.audio_url && (
-          <div>
-            {audioOpen ? (
-              <audio
-                controls
-                autoPlay={false}
-                className="w-full mt-1"
-                aria-label={`Audio explanation for ${docTypeLabel(doc.document_type)}`}
-              >
-                <source src={doc.audio_url} type="audio/mpeg" />
-                Your browser does not support audio playback.
-              </audio>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-primary text-primary hover:bg-accent text-base h-auto py-2 px-4"
-                onClick={() => setAudioOpen(true)}
-                aria-label={`Play audio explanation for ${docTypeLabel(doc.document_type)}`}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="mr-2 shrink-0"
-                  aria-hidden="true"
-                >
-                  <polygon points="5 3 19 12 5 21 5 3" />
-                </svg>
-                Play explanation
-              </Button>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <Link
+      to={`/result/${docId}`}
+      state={{
+        document_id: docId,
+        document_type: doc.document_type,
+        english_explanation: doc.english_explanation,
+        translated_explanation: doc.translated_explanation ?? "",
+        target_language: doc.target_language ?? "",
+        audio_url: doc.audio_url ?? "",
+        original_photo_url: doc.original_photo_url ?? "",
+        enhanced_photo_url: doc.enhanced_photo_url ?? "",
+        key_facts: doc.key_facts ?? {},
+        similar_past_documents: [],
+        pipeline_timing_ms: {},
+      }}
+      className="block rounded-2xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5 px-5 pt-4 pb-5 active:scale-[0.98] transition-transform"
+    >
+      <div className="flex flex-wrap items-center gap-3 mb-3">
+        <Badge
+          className="bg-primary text-primary-foreground text-sm font-medium px-3 py-1 rounded-full"
+        >
+          {docTypeLabel(doc.document_type)}
+        </Badge>
+        <time
+          className="text-muted-foreground text-base"
+          dateTime={doc.created_at}
+        >
+          {formatDate(doc.created_at)}
+        </time>
+      </div>
+      <p className="text-foreground text-base leading-relaxed">{snippet}</p>
+    </Link>
   );
 }
 
 export function FamilyPage() {
+  const { user, session } = useAuth();
   const [docs, setDocs] = useState<TimelineDoc[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   const load = () => {
+    if (!session?.access_token) return;
     setLoading(true);
     setError(false);
-    fetchTimeline(USER_ID)
+    fetchTimeline(session.access_token)
       .then((data) => {
         setDocs(data);
         setLoading(false);
@@ -204,40 +235,48 @@ export function FamilyPage() {
   };
 
   useEffect(() => {
-    load();
-  }, []);
+    if (session?.access_token) {
+      load();
+    } else {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.access_token]);
 
   return (
-    <main className="min-h-screen px-4 py-8 max-w-2xl mx-auto bg-background">
-      <header className="mb-8">
-        <h1 className="font-heading text-4xl text-foreground leading-tight mb-2">
-          Family Documents
+    <div className="flex flex-col gap-6 pb-8">
+      <motion.header
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease }}
+      >
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          Your documents
         </h1>
-        <p className="text-muted-foreground text-lg">
-          A clear record of every document your family has received.
-        </p>
-      </header>
+      </motion.header>
 
-      {loading && <TimelineSkeleton />}
+      {!user && <UnauthenticatedState />}
 
-      {!loading && error && <ErrorState onRetry={load} />}
+      {user && loading && <TimelineSkeleton />}
 
-      {!loading && !error && docs.length === 0 && <EmptyState />}
+      {user && !loading && error && <ErrorState onRetry={load} />}
 
-      {!loading && !error && docs.length > 0 && (
-        <ScrollArea className="h-[calc(100vh-220px)]">
-          <ol
-            className="space-y-4 pr-2"
-            aria-label="Document timeline"
-          >
-            {docs.map((doc) => (
-              <li key={doc._id}>
-                <TimelineCard doc={doc} />
-              </li>
-            ))}
-          </ol>
-        </ScrollArea>
+      {user && !loading && !error && docs.length === 0 && <EmptyState />}
+
+      {user && !loading && !error && docs.length > 0 && (
+        <ol className="space-y-4" aria-label="Document timeline">
+          {docs.map((doc, i) => (
+            <motion.li
+              key={doc._id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: i * 0.06, ease }}
+            >
+              <TimelineCard doc={doc} />
+            </motion.li>
+          ))}
+        </ol>
       )}
-    </main>
+    </div>
   );
 }

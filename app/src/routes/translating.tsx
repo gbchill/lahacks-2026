@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
   Brain,
@@ -21,6 +21,8 @@ type TranslatingLocationState = {
   file?: File;
   targetLanguage?: string;
   userId?: string;
+  token?: string;
+  voiceId?: string;
 };
 
 type StepState = "pending" | "active" | "done";
@@ -34,23 +36,74 @@ type TranslationStep = {
 type TranslatingCopy = {
   cancel: string;
   live: string;
-  title: string;
   progressLabel: string;
   footer: string;
   progressAria: string;
   steps: Array<Omit<TranslationStep, "Icon">>;
 };
 
-const STEP_INTERVAL_MS = 2200;
-const PROGRESS_DURATION_MS = 9500;
-const FINISH_HOLD_MS = 2000;
+const STEP_INTERVAL_MS = 8000;
+const FINISH_HOLD_MS = 1200;
 const STEP_ICONS = [FileScan, Brain, Languages, Sparkles];
+const WORD_ROTATE_MS = 4500;
+
+const ROTATING_WORDS: Record<string, string[]> = {
+  en: [
+    "Brewing...",
+    "Decoding...",
+    "Polishing...",
+    "Weaving...",
+    "Unfolding...",
+    "Crafting...",
+    "Simmering...",
+    "Piecing together...",
+  ],
+  "zh-CN": [
+    "酝酿中...",
+    "解读中...",
+    "润色中...",
+    "编织中...",
+    "展开中...",
+    "打磨中...",
+    "翻阅中...",
+    "拼凑中...",
+  ],
+  es: [
+    "Cocinando...",
+    "Descifrando...",
+    "Puliendo...",
+    "Hilvanando...",
+    "Revelando...",
+    "Armando...",
+    "Pensando...",
+    "Juntando piezas...",
+  ],
+  vi: [
+    "Đang pha chế...",
+    "Đang giải mã...",
+    "Đang trau chuốt...",
+    "Đang dệt...",
+    "Đang mở ra...",
+    "Đang ghép nối...",
+    "Đang suy ngẫm...",
+    "Đang lắp ghép...",
+  ],
+  ro: [
+    "Se prepară...",
+    "Se descifrează...",
+    "Se șlefuiește...",
+    "Se țese...",
+    "Se dezvăluie...",
+    "Se asamblează...",
+    "Se gândește...",
+    "Se îmbină...",
+  ],
+};
 
 const TRANSLATING_COPY: Record<string, TranslatingCopy> = {
   en: {
     cancel: "Cancel",
     live: "Live translation",
-    title: "Translating...",
     progressLabel: "Working on your translation",
     footer: "Hold on - your translation is on its way",
     progressAria: "Translation progress",
@@ -67,7 +120,6 @@ const TRANSLATING_COPY: Record<string, TranslatingCopy> = {
   "zh-CN": {
     cancel: "取消",
     live: "实时翻译",
-    title: "正在翻译...",
     progressLabel: "正在处理您的翻译",
     footer: "请稍等 - 您的翻译马上就好",
     progressAria: "翻译进度",
@@ -81,7 +133,6 @@ const TRANSLATING_COPY: Record<string, TranslatingCopy> = {
   es: {
     cancel: "Cancelar",
     live: "Traducción en vivo",
-    title: "Traduciendo...",
     progressLabel: "Trabajando en tu traducción",
     footer: "Espera un momento - tu traducción ya viene",
     progressAria: "Progreso de traducción",
@@ -98,7 +149,6 @@ const TRANSLATING_COPY: Record<string, TranslatingCopy> = {
   vi: {
     cancel: "Hủy",
     live: "Dịch trực tiếp",
-    title: "Đang dịch...",
     progressLabel: "Đang xử lý bản dịch của bạn",
     footer: "Chờ một chút - bản dịch của bạn sắp xong",
     progressAria: "Tiến trình dịch",
@@ -112,7 +162,6 @@ const TRANSLATING_COPY: Record<string, TranslatingCopy> = {
   ro: {
     cancel: "Anulați",
     live: "Traducere live",
-    title: "Se traduce...",
     progressLabel: "Lucrăm la traducerea dumneavoastră",
     footer: "Așteptați puțin - traducerea este pe drum",
     progressAria: "Progresul traducerii",
@@ -133,6 +182,11 @@ function getTranslatingCopy(code: string | null): TranslatingCopy {
   return TRANSLATING_COPY[code] ?? TRANSLATING_COPY.en;
 }
 
+function getRotatingWords(code: string | null): string[] {
+  if (!code) return ROTATING_WORDS.en;
+  return ROTATING_WORDS[code] ?? ROTATING_WORDS.en;
+}
+
 export function TranslatingPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -141,16 +195,25 @@ export function TranslatingPage() {
   const targetCode = state?.targetLanguage ?? code;
   const labels = getLabels(targetCode);
   const translatingCopy = getTranslatingCopy(targetCode);
+  const rotatingWords = getRotatingWords(targetCode);
   const prefersReducedMotion = useReducedMotion();
   const startedRef = useRef(false);
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [finishing, setFinishing] = useState(false);
+  const [wordIndex, setWordIndex] = useState(0);
 
   const steps = translatingCopy.steps.map((step, index) => ({
     ...step,
     Icon: STEP_ICONS[index] ?? Sparkles,
   }));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setWordIndex((i) => (i + 1) % rotatingWords.length);
+    }, WORD_ROTATE_MS);
+    return () => clearInterval(timer);
+  }, [rotatingWords.length]);
 
   useEffect(() => {
     if (!state?.file || !state.targetLanguage) {
@@ -163,8 +226,10 @@ export function TranslatingPage() {
 
     explainDocument(
       state.file,
-      state.userId ?? "demo-user-1",
+      state.userId ?? "anonymous",
       state.targetLanguage,
+      state.token,
+      state.voiceId,
     )
       .then((response) => {
         setFinishing(true);
@@ -213,7 +278,7 @@ export function TranslatingPage() {
     }
 
     if (prefersReducedMotion) {
-      setProgress(90);
+      setProgress(70);
       return;
     }
 
@@ -221,11 +286,11 @@ export function TranslatingPage() {
     const startedAt = performance.now();
 
     const tick = (now: number) => {
-      const elapsed = now - startedAt;
-      const next = Math.min((elapsed / PROGRESS_DURATION_MS) * 99, 99);
+      const elapsed = (now - startedAt) / 1000;
+      const next = 88 * (1 - Math.exp(-elapsed / 20));
       setProgress(next);
 
-      if (next < 99) {
+      if (next < 87.5) {
         frame = requestAnimationFrame(tick);
       }
     };
@@ -284,24 +349,26 @@ export function TranslatingPage() {
         </nav>
 
         <section className="flex flex-1 flex-col items-center justify-center py-10 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className="font-heading text-6xl leading-[1.05] tracking-tight text-balance text-foreground sm:text-7xl"
-          >
-            {translatingCopy.title}
-          </motion.h1>
+          <div className="h-[3.5rem] sm:h-[4rem] flex items-center justify-center overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.h1
+                key={wordIndex}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                className="font-heading text-4xl leading-[1.05] tracking-tight text-balance text-foreground sm:text-5xl"
+              >
+                {rotatingWords[wordIndex]}
+              </motion.h1>
+            </AnimatePresence>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 22, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.45, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-10 w-full rounded-3xl border border-border/60 bg-card/80 p-5 text-left backdrop-blur-sm sm:p-6"
-            style={{
-              boxShadow:
-                "0 20px 60px -30px var(--translating-shadow)",
-            }}
+            className="mt-10 w-full rounded-2xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5 p-4 text-left sm:p-5"
           >
             <motion.ol
               initial="hidden"
@@ -310,7 +377,7 @@ export function TranslatingPage() {
                 hidden: {},
                 show: { transition: { staggerChildren: 0.12 } },
               }}
-              className="space-y-3"
+              className="space-y-1"
               aria-label={translatingCopy.progressAria}
             >
               {steps.map((step, index) => {
@@ -324,7 +391,6 @@ export function TranslatingPage() {
                 return (
                   <TranslationStepRow
                     key={step.label}
-                    index={index}
                     step={step}
                     state={state}
                     prefersReducedMotion={Boolean(prefersReducedMotion)}
@@ -333,14 +399,14 @@ export function TranslatingPage() {
               })}
             </motion.ol>
 
-            <div className="mt-6 rounded-2xl border border-border/60 bg-background/70 p-4">
-              <div className="flex items-center justify-between gap-4 text-sm font-semibold">
-                <span>{translatingCopy.progressLabel}</span>
-                <span className="font-mono text-muted-foreground">
+            <div className="mt-4 rounded-xl border border-border/40 bg-background/50 p-3">
+              <div className="flex items-center justify-between gap-4 text-sm font-medium">
+                <span className="text-muted-foreground">{translatingCopy.progressLabel}</span>
+                <span className="font-mono text-xs text-muted-foreground/70">
                   {Math.floor(progress)}%
                 </span>
               </div>
-              <div className="relative mt-3 h-3 overflow-hidden rounded-full bg-secondary">
+              <div className="relative mt-2.5 h-2 overflow-hidden rounded-full bg-secondary">
                 <motion.div
                   className="absolute inset-y-0 left-0 overflow-hidden rounded-full bg-[var(--translating-primary)]"
                   animate={{ width: `${progress}%` }}
@@ -364,7 +430,7 @@ export function TranslatingPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.35 }}
-            className="mt-8 text-center text-base font-medium text-muted-foreground"
+            className="mt-8 text-center text-sm font-medium text-muted-foreground/60"
             aria-live="polite"
           >
             {translatingCopy.footer}
@@ -376,12 +442,10 @@ export function TranslatingPage() {
 }
 
 function TranslationStepRow({
-  index,
   step,
   state,
   prefersReducedMotion,
 }: {
-  index: number;
   step: TranslationStep;
   state: StepState;
   prefersReducedMotion: boolean;
@@ -391,76 +455,69 @@ function TranslationStepRow({
   return (
     <motion.li
       variants={{
-        hidden: { opacity: 0, y: 14 },
+        hidden: { opacity: 0, y: 10 },
         show: { opacity: 1, y: 0 },
       }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        "relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 rounded-2xl border p-4 transition-colors duration-300",
-        state === "active" &&
-          "border-primary/50 bg-primary/10",
-        state === "done" &&
-          "border-[var(--translating-success-border)] bg-[var(--translating-success-surface)]",
-        state === "pending" &&
-          "border-border/70 bg-background/70",
+        "relative flex items-center gap-3 rounded-xl px-3 py-3 transition-colors duration-300",
+        state === "active" && "bg-primary/5",
+        state === "done" && "bg-transparent",
+        state === "pending" && "bg-transparent",
       )}
     >
-      <motion.div
-        className={cn(
-          "relative flex h-12 w-12 items-center justify-center rounded-2xl",
-          state === "active" && "bg-primary text-primary-foreground",
-          state === "done" && "bg-[var(--translating-success-icon)]",
-          state === "pending" && "bg-secondary",
+      <div className="relative flex-shrink-0">
+        {state === "pending" && (
+          <div className="flex h-8 w-8 items-center justify-center">
+            <div className="h-2 w-2 rounded-full border border-white/20" />
+          </div>
         )}
-        animate={
-          state === "active" && !prefersReducedMotion
-            ? { scale: [1, 1.07, 1] }
-            : { scale: 1 }
-        }
-        transition={{ duration: 1.15, repeat: state === "active" ? Infinity : 0 }}
-      >
         {state === "active" && (
-          <motion.span
-            aria-hidden="true"
-            className="absolute inset-0 rounded-2xl bg-[var(--translating-primary)]"
+          <motion.div
+            className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20"
             animate={
               prefersReducedMotion
                 ? undefined
-                : { scale: [1, 1.55], opacity: [0.28, 0] }
+                : { opacity: [0.7, 1, 0.7] }
             }
-            transition={{ duration: 1.25, repeat: Infinity, ease: "easeOut" }}
-          />
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Icon className="h-4 w-4 text-primary" strokeWidth={1.5} />
+          </motion.div>
         )}
-        {state === "done" ? (
-          <CheckCircle2 className="relative h-6 w-6 text-[var(--translating-on-success)]" />
-        ) : (
-          <Icon
-            className={cn(
-              "relative h-6 w-6",
-              state === "active"
-                ? "text-primary-foreground"
-                : "text-muted-foreground",
-            )}
-            strokeWidth={1.8}
-          />
+        {state === "done" && (
+          <div className="flex h-8 w-8 items-center justify-center">
+            <CheckCircle2 className="h-4 w-4 text-emerald-400" strokeWidth={1.5} />
+          </div>
         )}
-      </motion.div>
-
-      <div className="min-w-0">
-        <div className="flex min-w-0 items-center gap-2">
-          <h2 className="truncate text-base font-bold">{step.label}</h2>
-          {state === "active" && (
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          )}
-        </div>
-        <p className="mt-0.5 text-sm leading-snug text-muted-foreground">
-          {step.detail}
-        </p>
       </div>
 
-      <span className="font-mono text-sm font-semibold text-muted-foreground">
-        {String(index + 1).padStart(2, "0")}
-      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <span
+            className={cn(
+              "text-sm transition-colors duration-200",
+              state === "active" && "font-medium text-foreground",
+              state === "done" && "text-muted-foreground",
+              state === "pending" && "text-muted-foreground/40",
+            )}
+          >
+            {step.label}
+          </span>
+          {state === "active" && (
+            <Loader2 className="h-3 w-3 animate-spin text-primary/60" />
+          )}
+        </div>
+        {state === "active" && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-0.5 text-xs text-muted-foreground/60"
+          >
+            {step.detail}
+          </motion.p>
+        )}
+      </div>
     </motion.li>
   );
 }

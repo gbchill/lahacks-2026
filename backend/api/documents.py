@@ -5,7 +5,7 @@ import logging
 import time
 import uuid
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, Header, HTTPException, UploadFile
 
 from models.schemas import ExplainResponse, KeyFacts, PipelineTiming
 from services.cloudinary_admin import enhance_for_ocr, upload_audio, upload_photo
@@ -14,10 +14,10 @@ from services.gemini import (
     embed_text,
     explain_in_plain_english,
     extract_text_from_image,
-    translate_to_mandarin,
+    translate_text,
 )
 from services.gemma import detect_pii
-from services.mongo import find_similar, save_document
+from services.mongo import find_similar, save_document, update_document_field
 
 import agents.bridge as bridge
 from agents.messages import OrchestrateRequest
@@ -29,10 +29,18 @@ router = APIRouter()
 @router.post("/explain", response_model=ExplainResponse)
 async def explain_document(
     photo: UploadFile = File(...),
-    user_id: str = Form(default="demo-user-1"),
+    user_id: str = Form(default="anonymous"),
     target_language: str = Form(default="zh-CN"),
+    voice_id: str = Form(default=""),
+    authorization: str = Header(default=""),
 ) -> ExplainResponse:
     """Photo of a document → structured explanation + audio URL in target language."""
+    # Override user_id from JWT if present
+    from services.supabase_admin import get_optional_user
+    jwt_user = get_optional_user(authorization)
+    if jwt_user:
+        user_id = jwt_user
+
     current_step = "init"
     timing: dict[str, float] = {}
     doc_id = str(uuid.uuid4())
@@ -67,11 +75,14 @@ async def explain_document(
             for d in past_docs[:3]
         )
 
-        # 3b. PII redaction — redact before sending text to cloud LLMs
-        current_step = "pii_redaction"
+        # 3b+4. PII detection + explanation in parallel
+        current_step = "pii+explanation"
         t0 = time.perf_counter()
-        pii_result = await detect_pii(raw_text)
-        timing["pii_redaction"] = round((time.perf_counter() - t0) * 1000, 1)
+        pii_result, explain_result = await asyncio.gather(
+            detect_pii(raw_text),
+            explain_in_plain_english(raw_text, document_type, family_history),
+        )
+        timing["explanation"] = round((time.perf_counter() - t0) * 1000, 1)
         redacted_text = pii_result.get("redacted_text", raw_text)
         if pii_result.get("has_pii"):
             logger.info(
@@ -79,28 +90,23 @@ async def explain_document(
                 pii_result.get("pii_types"),
                 doc_id,
             )
-
-        # 4. Plain-English explanation
-        current_step = "explanation"
-        t0 = time.perf_counter()
-        explain_result = await explain_in_plain_english(
-            redacted_text, document_type, family_history
-        )
-        timing["explanation"] = round((time.perf_counter() - t0) * 1000, 1)
         english_explanation = explain_result.get("explanation", "")
         key_facts_raw = explain_result.get("key_facts", {})
 
         # 5. Translate to target language
         current_step = "translation"
         t0 = time.perf_counter()
-        translated_text = await translate_to_mandarin(english_explanation, document_type)
+        if target_language.startswith("en"):
+            translated_text = english_explanation
+        else:
+            translated_text = await translate_text(english_explanation, document_type, target_language)
         timing["translation"] = round((time.perf_counter() - t0) * 1000, 1)
 
         # 6. TTS + embedding in parallel
         current_step = "tts+embedding"
         t0 = time.perf_counter()
         audio_bytes, embedding = await asyncio.gather(
-            synthesize_speech(translated_text, target_language),
+            synthesize_speech(translated_text, target_language, voice_id=voice_id or None),
             embed_text(english_explanation + " " + translated_text),
         )
         timing["tts"] = round((time.perf_counter() - t0) * 1000, 1)
@@ -128,6 +134,8 @@ async def explain_document(
             ),
         )
         timing["audio_upload"] = round((time.perf_counter() - t0) * 1000, 1)
+
+        await update_document_field(doc_id, "audio_url", audio_url)
 
         timing["total"] = round((time.perf_counter() - pipeline_start) * 1000, 1)
 
@@ -173,10 +181,18 @@ async def explain_document(
 @router.post("/explain-via-agents", response_model=ExplainResponse)
 async def explain_document_via_agents(
     photo: UploadFile = File(...),
-    user_id: str = Form(default="demo-user-1"),
+    user_id: str = Form(default="anonymous"),
     target_language: str = Form(default="zh-CN"),
+    voice_id: str = Form(default=""),
+    authorization: str = Header(default=""),
 ) -> ExplainResponse:
     """Agent-powered pipeline: photo → Parser → Context → Drafter → Translator → audio."""
+    # Override user_id from JWT if present
+    from services.supabase_admin import get_optional_user
+    jwt_user = get_optional_user(authorization)
+    if jwt_user:
+        user_id = jwt_user
+
     pipeline_start = time.perf_counter()
     timing: dict[str, float] = {}
     doc_id = str(uuid.uuid4())
@@ -219,7 +235,7 @@ async def explain_document_via_agents(
         # 4. TTS on translated text
         t0 = time.perf_counter()
         audio_bytes = await synthesize_speech(
-            result.translated_explanation, target_language
+            result.translated_explanation, target_language, voice_id=voice_id or None
         )
         timing["tts"] = round((time.perf_counter() - t0) * 1000, 1)
 
@@ -245,6 +261,9 @@ async def explain_document_via_agents(
             ),
         )
         timing["audio_upload"] = round((time.perf_counter() - t0) * 1000, 1)
+
+        await update_document_field(doc_id, "audio_url", audio_url)
+
         timing["total"] = round((time.perf_counter() - pipeline_start) * 1000, 1)
 
         logger.info(

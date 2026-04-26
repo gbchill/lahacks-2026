@@ -1,5 +1,6 @@
 """ElevenLabs — TTS with cloned voice, Multilingual v2."""
 import asyncio
+import io
 import logging
 import os
 
@@ -7,7 +8,6 @@ from elevenlabs.client import ElevenLabs
 from elevenlabs.types import VoiceSettings
 
 logger = logging.getLogger(__name__)
-
 _client: ElevenLabs | None = None
 
 
@@ -36,9 +36,38 @@ def _synthesize_blocking(text: str, voice_id: str, lang_code: str) -> bytes:
     return audio
 
 
-async def synthesize_speech(text: str, language: str = "zh-CN") -> bytes:
-    voice_id = os.getenv("ELEVENLABS_VOICE_ID")
-    if not voice_id:
-        raise RuntimeError("ELEVENLABS_VOICE_ID not set")
+def _resolve_voice(language: str, voice_id: str | None) -> str:
+    """Pick the best voice: explicit > per-language default > global fallback."""
+    if voice_id:
+        return voice_id
     lang_code = language.split("-")[0]
-    return await asyncio.to_thread(_synthesize_blocking, text, voice_id, lang_code)
+    per_lang = os.getenv(f"ELEVENLABS_VOICE_ID_{lang_code.upper()}", "")
+    if per_lang:
+        return per_lang
+    fallback = os.getenv("ELEVENLABS_VOICE_ID", "")
+    if fallback:
+        return fallback
+    raise RuntimeError(f"No voice configured for language {language}")
+
+
+async def synthesize_speech(
+    text: str, language: str = "zh-CN", voice_id: str | None = None
+) -> bytes:
+    resolved_voice = _resolve_voice(language, voice_id)
+    lang_code = language.split("-")[0]
+    return await asyncio.to_thread(_synthesize_blocking, text, resolved_voice, lang_code)
+
+
+def _clone_voice_blocking(name: str, audio_bytes: bytes) -> str:
+    client = _get_client()
+    response = client.voices.ivc.create(
+        name=name,
+        files=[io.BytesIO(audio_bytes)],
+        description=f"Cloned voice for {name}",
+    )
+    return response.voice_id
+
+
+async def clone_voice(user_name: str, audio_bytes: bytes) -> str:
+    """Clone a user's voice using ElevenLabs Instant Voice Clone API."""
+    return await asyncio.to_thread(_clone_voice_blocking, user_name, audio_bytes)

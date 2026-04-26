@@ -57,14 +57,21 @@ export async function explainDocument(
   photo: File,
   userId: string,
   targetLanguage: string,
+  token?: string,
+  voiceId?: string,
 ): Promise<ExplainResponse> {
   const form = new FormData();
   form.append("photo", photo);
   form.append("user_id", userId);
   form.append("target_language", targetLanguage);
+  if (voiceId) form.append("voice_id", voiceId);
 
-  const res = await fetch(`${BACKEND_URL}/documents/explain-via-agents`, {
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${BACKEND_URL}/documents/explain`, {
     method: "POST",
+    headers,
     body: form,
   });
 

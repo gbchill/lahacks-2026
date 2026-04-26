@@ -47,6 +47,12 @@ async def _broadcast_transcript(call_id: str, event: dict[str, Any]) -> None:
 @router.post("/start")
 async def start_call(req: StartCallRequest, request: Request):
     """Initiate a Twilio call. Returns a call_id for websocket subscription."""
+    # Override user_id from JWT if present
+    from services.supabase_admin import get_optional_user
+    auth_header = request.headers.get("authorization", "")
+    jwt_user = get_optional_user(auth_header)
+    effective_user_id = jwt_user or req.user_id
+
     # Validate Twilio configuration
     account_sid = os.getenv("TWILIO_ACCOUNT_SID")
     auth_token = os.getenv("TWILIO_AUTH_TOKEN")
@@ -59,7 +65,7 @@ async def start_call(req: StartCallRequest, request: Request):
 
     # Store call state
     active_calls[call_id] = {
-        "user_id": req.user_id,
+        "user_id": effective_user_id,
         "document_id": req.document_id,
         "target_phone": req.target_phone,
         "user_language": req.user_language,

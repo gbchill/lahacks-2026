@@ -45,10 +45,14 @@ export async function startCall(
   documentId: string,
   targetPhone: string,
   userLanguage: string,
+  token?: string,
 ): Promise<CallStartResponse> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
   const res = await fetch(`${BACKEND_URL}/calls/start`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({
       user_id: userId,
       document_id: documentId,

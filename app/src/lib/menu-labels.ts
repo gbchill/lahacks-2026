@@ -5,6 +5,7 @@ export type MenuLabels = {
   welcomeTitle: string;
   welcomeSubtitle: string;
   welcomeContinue: string;
+  welcomeSignIn: string;
   voicePrompt: string;
   voiceListening: string;
   voiceComingSoon: string;
@@ -15,6 +16,7 @@ export type MenuLabels = {
   voiceMicDenied: string;
 
   // Home menu cards
+  homeGreeting: string;
   scanTitle: string;
   scanSubtitle: string;
   callTitle: string;
@@ -38,6 +40,13 @@ export type MenuLabels = {
   // Header
   goBack: string;
 
+  // Login
+  loginHeading: string;
+  loginSubmit: string;
+  loginNoAccount: string;
+  loginCreateAccount: string;
+  loginContinueWithout: string;
+
   // Signup
   signupHeading: string;
   signupBody: string;
@@ -45,6 +54,10 @@ export type MenuLabels = {
   signupPassword: string;
   signupSubmit: string;
   signupSkip: string;
+  signupHasAccount: string;
+  signupSignIn: string;
+  emailPlaceholder: string;
+  passwordPlaceholder: string;
   back: string;
 
   // Capture
@@ -63,6 +76,10 @@ export type MenuLabels = {
   resultTakeNew: string;
   resultContinue: string;
   resultCallOffice: string;
+  resultSaved: string;
+  resultSavePrompt: string;
+  resultCreateAccount: string;
+  resultNotNow: string;
   callDialogTitle: string;
   callDialogBody: (language: string) => string;
 
@@ -107,6 +124,49 @@ export type MenuLabels = {
   audioProgress: string;
   play: string;
   pause: string;
+
+  // Bottom tab bar
+  tabHome: string;
+  tabScan: string;
+  tabDocuments: string;
+  tabProfile: string;
+
+  // Account page
+  accountTitle: string;
+  accountLanguage: string;
+  accountVoice: string;
+  accountVoiceSet: string;
+  accountVoiceRecord: string;
+  accountSignOut: string;
+
+  // Onboarding wizard
+  onboardingProfile: string;
+  onboardingName: string;
+  onboardingRelationship: string;
+  onboardingParent: string;
+  onboardingChild: string;
+  onboardingFamily: string;
+  onboardingLanguage: string;
+  onboardingLanguageDesc: string;
+  onboardingVoiceTitle: string;
+  onboardingVoiceDesc: string;
+  onboardingVoiceRecorded: string;
+  onboardingSkip: string;
+  onboardingFinish: string;
+  onboardingContinue: string;
+
+  // Call dialog
+  callReady: string;
+  callConnecting: string;
+  callActive: string;
+  callEnded: string;
+  callWaitingAudio: string;
+  callOfficeLabel: string;
+  callYouLabel: string;
+  callStart: string;
+  callEnd: string;
+  callAgain: string;
+  callPhoneLabel: string;
 };
 
 export const MENU_LABELS: Record<string, MenuLabels> = {
@@ -114,6 +174,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     welcomeTitle: "Welcome",
     welcomeSubtitle: "Choose your language",
     welcomeContinue: "Continue",
+    welcomeSignIn: "Already have an account? Sign in",
     voicePrompt: "Or say it out loud",
     voiceListening: "Listening…",
     voiceComingSoon: "Coming soon",
@@ -123,7 +184,8 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voiceNotSupported: "Speech recognition isn't supported in this browser",
     voiceMicDenied: "Microphone access denied",
 
-    scanTitle: "Scan a letter",
+    homeGreeting: "Good morning",
+    scanTitle: "Scan a document",
     scanSubtitle: "Take a photo, hear it explained",
     callTitle: "Make a call",
     callSubtitle: "Translated in real time",
@@ -145,16 +207,26 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
 
     goBack: "Go back",
 
+    loginHeading: "Welcome back",
+    loginSubmit: "Sign in",
+    loginNoAccount: "Don't have an account?",
+    loginCreateAccount: "Create one",
+    loginContinueWithout: "Continue without account",
+
     signupHeading: "Create your account",
     signupBody: "Just an email and a password — that's it.",
     signupEmail: "Email",
     signupPassword: "Password",
     signupSubmit: "Create account",
     signupSkip: "Skip for now",
+    signupHasAccount: "Already have an account?",
+    signupSignIn: "Sign in",
+    emailPlaceholder: "Email address",
+    passwordPlaceholder: "Password",
     back: "Back",
 
-    captureHeading: "What letter did you get?",
-    captureSubtitle: "Take a photo and we'll explain it in your language.",
+    captureHeading: "What document did you receive?",
+    captureSubtitle: "Snap a photo and we'll explain it in your language.",
     captureLoading: "Our agents are reading your document…",
 
     cameraTitle: "Upload the document you would like translated",
@@ -166,6 +238,10 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     resultTakeNew: "Take a new photo",
     resultContinue: "Continue",
     resultCallOffice: "Call the office",
+    resultSaved: "Saved to your documents",
+    resultSavePrompt: "Save this to your history",
+    resultCreateAccount: "Create free account",
+    resultNotNow: "Not now",
     callDialogTitle: "Live translated calls",
     callDialogBody: (lang) =>
       `Call any office with real-time translation — coming next. We'll connect you with an interpreter who speaks ${lang}.`,
@@ -205,11 +281,51 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     audioProgress: "Audio progress",
     play: "Play",
     pause: "Pause",
+
+    tabHome: "Home",
+    tabScan: "Scan",
+    tabDocuments: "Documents",
+    tabProfile: "Profile",
+
+    accountTitle: "Account",
+    accountLanguage: "Language",
+    accountVoice: "Voice",
+    accountVoiceSet: "Your voice is set up",
+    accountVoiceRecord: "Record your voice",
+    accountSignOut: "Sign out",
+
+    onboardingProfile: "Tell us about yourself",
+    onboardingName: "Your name",
+    onboardingRelationship: "I am a...",
+    onboardingParent: "Parent",
+    onboardingChild: "Child (18+)",
+    onboardingFamily: "Family member",
+    onboardingLanguage: "Your preferred language",
+    onboardingLanguageDesc: "We'll explain all documents in this language",
+    onboardingVoiceTitle: "Record your voice",
+    onboardingVoiceDesc: "Hear documents read back in a familiar voice",
+    onboardingVoiceRecorded: "Your voice has been recorded!",
+    onboardingSkip: "Skip for now",
+    onboardingFinish: "Finish",
+    onboardingContinue: "Continue",
+
+    callReady: "Ready",
+    callConnecting: "Connecting…",
+    callActive: "In Call",
+    callEnded: "Call Ended",
+    callWaitingAudio: "Waiting for audio…",
+    callOfficeLabel: "Office",
+    callYouLabel: "You",
+    callStart: "Start Call",
+    callEnd: "End Call",
+    callAgain: "Call Again",
+    callPhoneLabel: "Office phone number",
   },
   "zh-CN": {
     welcomeTitle: "欢迎",
     welcomeSubtitle: "选择您的语言",
     welcomeContinue: "继续",
+    welcomeSignIn: "已有账户？登录",
     voicePrompt: "或大声说出来",
     voiceListening: "正在聆听…",
     voiceComingSoon: "即将推出",
@@ -219,6 +335,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voiceNotSupported: "此浏览器不支持语音识别",
     voiceMicDenied: "麦克风访问被拒绝",
 
+    homeGreeting: "早上好",
     scanTitle: "扫描信件",
     scanSubtitle: "拍照,听解释",
     callTitle: "拨打电话",
@@ -240,16 +357,26 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
 
     goBack: "返回",
 
+    loginHeading: "欢迎回来",
+    loginSubmit: "登录",
+    loginNoAccount: "没有账户？",
+    loginCreateAccount: "创建",
+    loginContinueWithout: "无需账户继续",
+
     signupHeading: "创建您的账户",
     signupBody: "只需邮箱和密码,就这么简单。",
     signupEmail: "邮箱",
     signupPassword: "密码",
     signupSubmit: "创建账户",
     signupSkip: "暂时跳过",
+    signupHasAccount: "已有账户？",
+    signupSignIn: "登录",
+    emailPlaceholder: "电子邮箱",
+    passwordPlaceholder: "密码",
     back: "返回",
 
-    captureHeading: "您收到什么信件?",
-    captureSubtitle: "拍一张照片,我们用您的语言为您解释。",
+    captureHeading: "您收到了什么文件？",
+    captureSubtitle: "拍张照片，我们用您的语言为您解释。",
     captureLoading: "我们的助手正在阅读您的文件…",
 
     cameraTitle: "上传您想翻译的文件",
@@ -261,6 +388,10 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     resultTakeNew: "重新拍照",
     resultContinue: "继续",
     resultCallOffice: "致电办公室",
+    resultSaved: "已保存到您的文件",
+    resultSavePrompt: "将此保存到您的历史记录",
+    resultCreateAccount: "免费创建账户",
+    resultNotNow: "暂不",
     callDialogTitle: "实时翻译通话",
     callDialogBody: (lang) =>
       `致电任何办公室,获得实时翻译——即将推出。我们将为您连接一位讲${lang}的翻译员。`,
@@ -299,11 +430,51 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     audioProgress: "音频进度",
     play: "播放",
     pause: "暂停",
+
+    tabHome: "首页",
+    tabScan: "扫描",
+    tabDocuments: "文件",
+    tabProfile: "个人",
+
+    accountTitle: "账户",
+    accountLanguage: "语言",
+    accountVoice: "声音",
+    accountVoiceSet: "您的声音已设置",
+    accountVoiceRecord: "录制您的声音",
+    accountSignOut: "退出登录",
+
+    onboardingProfile: "告诉我们关于你",
+    onboardingName: "你的名字",
+    onboardingRelationship: "我是...",
+    onboardingParent: "父母",
+    onboardingChild: "子女 (18+)",
+    onboardingFamily: "家庭成员",
+    onboardingLanguage: "你的首选语言",
+    onboardingLanguageDesc: "我们将用此语言解释所有文件",
+    onboardingVoiceTitle: "录制你的声音",
+    onboardingVoiceDesc: "用熟悉的声音听文件朗读",
+    onboardingVoiceRecorded: "你的声音已录制！",
+    onboardingSkip: "暂时跳过",
+    onboardingFinish: "完成",
+    onboardingContinue: "继续",
+
+    callReady: "准备就绪",
+    callConnecting: "连接中…",
+    callActive: "通话中",
+    callEnded: "通话结束",
+    callWaitingAudio: "等待音频…",
+    callOfficeLabel: "办公室",
+    callYouLabel: "您",
+    callStart: "开始通话",
+    callEnd: "结束通话",
+    callAgain: "再次通话",
+    callPhoneLabel: "办公室电话号码",
   },
   es: {
     welcomeTitle: "Bienvenido",
     welcomeSubtitle: "Elige tu idioma",
     welcomeContinue: "Continuar",
+    welcomeSignIn: "¿Ya tienes una cuenta? Inicia sesión",
     voicePrompt: "O dilo en voz alta",
     voiceListening: "Escuchando…",
     voiceComingSoon: "Próximamente",
@@ -313,6 +484,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voiceNotSupported: "Reconocimiento de voz no disponible en este navegador",
     voiceMicDenied: "Acceso al micrófono denegado",
 
+    homeGreeting: "Buenos días",
     scanTitle: "Escanear una carta",
     scanSubtitle: "Toma una foto, escucha la explicación",
     callTitle: "Hacer una llamada",
@@ -335,16 +507,26 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
 
     goBack: "Volver",
 
+    loginHeading: "Bienvenido",
+    loginSubmit: "Iniciar sesión",
+    loginNoAccount: "¿No tienes cuenta?",
+    loginCreateAccount: "Crear una",
+    loginContinueWithout: "Continuar sin cuenta",
+
     signupHeading: "Crea tu cuenta",
     signupBody: "Solo un correo y una contraseña — eso es todo.",
     signupEmail: "Correo electrónico",
     signupPassword: "Contraseña",
     signupSubmit: "Crear cuenta",
     signupSkip: "Omitir por ahora",
+    signupHasAccount: "¿Ya tienes cuenta?",
+    signupSignIn: "Inicia sesión",
+    emailPlaceholder: "Correo electrónico",
+    passwordPlaceholder: "Contraseña",
     back: "Atrás",
 
-    captureHeading: "¿Qué carta recibiste?",
-    captureSubtitle: "Toma una foto y te la explicaremos en tu idioma.",
+    captureHeading: "¿Qué documento recibiste?",
+    captureSubtitle: "Toma una foto y te lo explicamos en tu idioma.",
     captureLoading: "Nuestros agentes están leyendo tu documento…",
 
     cameraTitle: "Sube el documento que quieres traducir",
@@ -356,6 +538,10 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     resultTakeNew: "Tomar una nueva foto",
     resultContinue: "Continuar",
     resultCallOffice: "Llamar a la oficina",
+    resultSaved: "Guardado en tus documentos",
+    resultSavePrompt: "Guarda esto en tu historial",
+    resultCreateAccount: "Crear cuenta gratis",
+    resultNotNow: "Ahora no",
     callDialogTitle: "Llamadas con traducción en vivo",
     callDialogBody: (lang) =>
       `Llama a cualquier oficina con traducción en tiempo real — próximamente. Te conectaremos con un intérprete que hable ${lang}.`,
@@ -395,11 +581,51 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     audioProgress: "Progreso del audio",
     play: "Reproducir",
     pause: "Pausar",
+
+    tabHome: "Inicio",
+    tabScan: "Escanear",
+    tabDocuments: "Documentos",
+    tabProfile: "Perfil",
+
+    accountTitle: "Cuenta",
+    accountLanguage: "Idioma",
+    accountVoice: "Voz",
+    accountVoiceSet: "Tu voz está configurada",
+    accountVoiceRecord: "Graba tu voz",
+    accountSignOut: "Cerrar sesión",
+
+    onboardingProfile: "Cuéntanos sobre ti",
+    onboardingName: "Tu nombre",
+    onboardingRelationship: "Soy un/a...",
+    onboardingParent: "Padre/Madre",
+    onboardingChild: "Hijo/a (18+)",
+    onboardingFamily: "Familiar",
+    onboardingLanguage: "Tu idioma preferido",
+    onboardingLanguageDesc: "Explicaremos todos los documentos en este idioma",
+    onboardingVoiceTitle: "Graba tu voz",
+    onboardingVoiceDesc: "Escucha documentos en una voz familiar",
+    onboardingVoiceRecorded: "¡Tu voz ha sido grabada!",
+    onboardingSkip: "Omitir por ahora",
+    onboardingFinish: "Terminar",
+    onboardingContinue: "Continuar",
+
+    callReady: "Listo",
+    callConnecting: "Conectando…",
+    callActive: "En llamada",
+    callEnded: "Llamada finalizada",
+    callWaitingAudio: "Esperando audio…",
+    callOfficeLabel: "Oficina",
+    callYouLabel: "Tú",
+    callStart: "Iniciar llamada",
+    callEnd: "Finalizar llamada",
+    callAgain: "Llamar de nuevo",
+    callPhoneLabel: "Número de la oficina",
   },
   vi: {
     welcomeTitle: "Chào mừng",
     welcomeSubtitle: "Chọn ngôn ngữ của bạn",
     welcomeContinue: "Tiếp tục",
+    welcomeSignIn: "Đã có tài khoản? Đăng nhập",
     voicePrompt: "Hoặc nói to lên",
     voiceListening: "Đang nghe…",
     voiceComingSoon: "Sắp ra mắt",
@@ -409,6 +635,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voiceNotSupported: "Trình duyệt không hỗ trợ nhận dạng giọng nói",
     voiceMicDenied: "Quyền truy cập microphone bị từ chối",
 
+    homeGreeting: "Chào buổi sáng",
     scanTitle: "Quét một lá thư",
     scanSubtitle: "Chụp ảnh, nghe giải thích",
     callTitle: "Gọi điện thoại",
@@ -431,16 +658,26 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
 
     goBack: "Quay lại",
 
+    loginHeading: "Chào mừng trở lại",
+    loginSubmit: "Đăng nhập",
+    loginNoAccount: "Chưa có tài khoản?",
+    loginCreateAccount: "Tạo tài khoản",
+    loginContinueWithout: "Tiếp tục không cần tài khoản",
+
     signupHeading: "Tạo tài khoản của bạn",
     signupBody: "Chỉ cần email và mật khẩu — chỉ vậy thôi.",
     signupEmail: "Email",
     signupPassword: "Mật khẩu",
     signupSubmit: "Tạo tài khoản",
     signupSkip: "Bỏ qua",
+    signupHasAccount: "Đã có tài khoản?",
+    signupSignIn: "Đăng nhập",
+    emailPlaceholder: "Địa chỉ email",
+    passwordPlaceholder: "Mật khẩu",
     back: "Trở lại",
 
-    captureHeading: "Bạn đã nhận được lá thư gì?",
-    captureSubtitle: "Chụp một bức ảnh và chúng tôi sẽ giải thích bằng ngôn ngữ của bạn.",
+    captureHeading: "Bạn đã nhận được tài liệu gì?",
+    captureSubtitle: "Chụp ảnh và chúng tôi sẽ giải thích bằng ngôn ngữ của bạn.",
     captureLoading: "Các trợ lý của chúng tôi đang đọc tài liệu của bạn…",
 
     cameraTitle: "Tải lên tài liệu bạn muốn dịch",
@@ -452,6 +689,10 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     resultTakeNew: "Chụp ảnh mới",
     resultContinue: "Tiếp tục",
     resultCallOffice: "Gọi văn phòng",
+    resultSaved: "Đã lưu vào tài liệu của bạn",
+    resultSavePrompt: "Lưu nội dung này vào lịch sử",
+    resultCreateAccount: "Tạo tài khoản miễn phí",
+    resultNotNow: "Chưa phải lúc này",
     callDialogTitle: "Cuộc gọi dịch trực tiếp",
     callDialogBody: (lang) =>
       `Gọi bất kỳ văn phòng nào với bản dịch thời gian thực — sắp ra mắt. Chúng tôi sẽ kết nối bạn với một thông dịch viên nói ${lang}.`,
@@ -491,11 +732,51 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     audioProgress: "Tiến trình âm thanh",
     play: "Phát",
     pause: "Tạm dừng",
+
+    tabHome: "Trang chủ",
+    tabScan: "Quét",
+    tabDocuments: "Tài liệu",
+    tabProfile: "Hồ sơ",
+
+    accountTitle: "Tài khoản",
+    accountLanguage: "Ngôn ngữ",
+    accountVoice: "Giọng nói",
+    accountVoiceSet: "Giọng nói của bạn đã được thiết lập",
+    accountVoiceRecord: "Ghi âm giọng nói của bạn",
+    accountSignOut: "Đăng xuất",
+
+    onboardingProfile: "Cho chúng tôi biết về bạn",
+    onboardingName: "Tên của bạn",
+    onboardingRelationship: "Tôi là...",
+    onboardingParent: "Phụ huynh",
+    onboardingChild: "Con (18+)",
+    onboardingFamily: "Thành viên gia đình",
+    onboardingLanguage: "Ngôn ngữ ưa thích",
+    onboardingLanguageDesc: "Chúng tôi sẽ giải thích tất cả tài liệu bằng ngôn ngữ này",
+    onboardingVoiceTitle: "Ghi âm giọng nói",
+    onboardingVoiceDesc: "Nghe tài liệu đọc lại bằng giọng quen thuộc",
+    onboardingVoiceRecorded: "Giọng nói của bạn đã được ghi lại!",
+    onboardingSkip: "Bỏ qua",
+    onboardingFinish: "Hoàn thành",
+    onboardingContinue: "Tiếp tục",
+
+    callReady: "Sẵn sàng",
+    callConnecting: "Đang kết nối…",
+    callActive: "Đang gọi",
+    callEnded: "Cuộc gọi kết thúc",
+    callWaitingAudio: "Đang chờ âm thanh…",
+    callOfficeLabel: "Văn phòng",
+    callYouLabel: "Bạn",
+    callStart: "Bắt đầu gọi",
+    callEnd: "Kết thúc gọi",
+    callAgain: "Gọi lại",
+    callPhoneLabel: "Số điện thoại văn phòng",
   },
   ro: {
     welcomeTitle: "Bun venit",
     welcomeSubtitle: "Alegeți limba dumneavoastră",
     welcomeContinue: "Continuați",
+    welcomeSignIn: "Aveți deja un cont? Conectați-vă",
     voicePrompt: "Sau spuneți cu voce tare",
     voiceListening: "Ascult…",
     voiceComingSoon: "În curând",
@@ -505,6 +786,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     voiceNotSupported: "Recunoașterea vocală nu este disponibilă în acest browser",
     voiceMicDenied: "Accesul la microfon a fost refuzat",
 
+    homeGreeting: "Bună dimineața",
     scanTitle: "Scanați o scrisoare",
     scanSubtitle: "Faceți o fotografie, ascultați explicația",
     callTitle: "Apel telefonic",
@@ -527,16 +809,26 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
 
     goBack: "Înapoi",
 
-    signupHeading: "Creați-vă contul",
+    loginHeading: "Bine ai revenit",
+    loginSubmit: "Conectare",
+    loginNoAccount: "Nu ai cont?",
+    loginCreateAccount: "Creează unul",
+    loginContinueWithout: "Continuă fără cont",
+
+    signupHeading: "Creează-ți contul",
     signupBody: "Doar un email și o parolă — atât.",
     signupEmail: "Email",
     signupPassword: "Parolă",
     signupSubmit: "Creați cont",
     signupSkip: "Omiteți deocamdată",
+    signupHasAccount: "Ai deja cont?",
+    signupSignIn: "Conectează-te",
+    emailPlaceholder: "Adresă de email",
+    passwordPlaceholder: "Parolă",
     back: "Înapoi",
 
-    captureHeading: "Ce scrisoare ați primit?",
-    captureSubtitle: "Faceți o fotografie și o vom explica în limba dumneavoastră.",
+    captureHeading: "Ce document ați primit?",
+    captureSubtitle: "Faceți o fotografie și vi-l explicăm în limba dumneavoastră.",
     captureLoading: "Asistenții noștri vă citesc documentul…",
 
     cameraTitle: "Încărcați documentul pe care doriți să îl traduceți",
@@ -548,6 +840,10 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     resultTakeNew: "Faceți o fotografie nouă",
     resultContinue: "Continuați",
     resultCallOffice: "Sunați la birou",
+    resultSaved: "Salvat în documentele dvs.",
+    resultSavePrompt: "Salvați aceasta în istoricul dvs.",
+    resultCreateAccount: "Creați cont gratuit",
+    resultNotNow: "Nu acum",
     callDialogTitle: "Apeluri cu traducere în direct",
     callDialogBody: (lang) =>
       `Sunați la orice birou cu traducere în timp real — în curând. Vă vom conecta cu un interpret care vorbește ${lang}.`,
@@ -587,6 +883,45 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     audioProgress: "Progresul audio",
     play: "Redare",
     pause: "Pauză",
+
+    tabHome: "Acasă",
+    tabScan: "Scanare",
+    tabDocuments: "Documente",
+    tabProfile: "Profil",
+
+    accountTitle: "Cont",
+    accountLanguage: "Limbă",
+    accountVoice: "Voce",
+    accountVoiceSet: "Vocea dvs. este configurată",
+    accountVoiceRecord: "Înregistrați-vă vocea",
+    accountSignOut: "Deconectare",
+
+    onboardingProfile: "Spune-ne despre tine",
+    onboardingName: "Numele tău",
+    onboardingRelationship: "Sunt un/o...",
+    onboardingParent: "Părinte",
+    onboardingChild: "Copil (18+)",
+    onboardingFamily: "Membru al familiei",
+    onboardingLanguage: "Limba ta preferată",
+    onboardingLanguageDesc: "Vom explica toate documentele în această limbă",
+    onboardingVoiceTitle: "Înregistrează-ți vocea",
+    onboardingVoiceDesc: "Ascultă documentele citite cu o voce familiară",
+    onboardingVoiceRecorded: "Vocea ta a fost înregistrată!",
+    onboardingSkip: "Sări peste",
+    onboardingFinish: "Finalizare",
+    onboardingContinue: "Continuă",
+
+    callReady: "Pregătit",
+    callConnecting: "Se conectează…",
+    callActive: "În apel",
+    callEnded: "Apel încheiat",
+    callWaitingAudio: "Se așteaptă audio…",
+    callOfficeLabel: "Birou",
+    callYouLabel: "Dvs.",
+    callStart: "Începeți apelul",
+    callEnd: "Încheiați apelul",
+    callAgain: "Sunați din nou",
+    callPhoneLabel: "Numărul de telefon al biroului",
   },
 };
 

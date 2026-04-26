@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Phone, ArrowLeft, ArrowRight, PhoneOff, Loader2, PhoneCall } from "lucide-react";
+import { Phone, ArrowLeft, PhoneOff, Loader2, PhoneCall, CheckCircle2, X } from "lucide-react";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExplanationCard } from "@/components/explanation-card";
 import { AudioPlayer } from "@/components/audio-player";
@@ -10,6 +10,7 @@ import { SimilarLetters } from "@/components/similar-letters";
 import { AgentTimeline } from "@/components/agent-timeline";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/language-context";
+import { useAuth } from "@/contexts/auth-context";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -39,11 +40,12 @@ type TranscriptLine = {
 
 export function ResultPage() {
   const location = useLocation();
-  const navigate = useNavigate();
   const { code } = useLanguage();
+  const { user, session } = useAuth();
   const labels = getLabels(code);
   const data = location.state as ExplainResponse | null;
   const [callDialogOpen, setCallDialogOpen] = useState(false);
+  const [savePromptDismissed, setSavePromptDismissed] = useState(false);
 
   // Call state
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -76,10 +78,11 @@ export function ResultPage() {
 
     try {
       const res = await startCall(
-        "anonymous",
+        user?.id ?? "anonymous",
         data.document_id,
         phoneNumber.trim(),
         data.target_language,
+        session?.access_token,
       );
       setCallId(res.call_id);
 
@@ -152,7 +155,7 @@ export function ResultPage() {
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="flex flex-col gap-8 max-w-2xl mx-auto pb-12"
     >
-      <DocumentPreview src={data.original_photo_url} type={data.document_type} />
+      <DocumentPreview src={data.original_photo_url} enhancedSrc={data.enhanced_photo_url} type={data.document_type} />
 
       <ExplanationCard
         translated={data.translated_explanation}
@@ -169,16 +172,50 @@ export function ResultPage() {
 
       <AgentTimeline timing={data.pipeline_timing_ms} data={data} />
 
-      <SimilarLetters documentIds={data.similar_past_documents} />
+      <SimilarLetters documentIds={data.similar_past_documents} token={session?.access_token} />
 
       <div className="pt-4 flex flex-col gap-3">
-        <Button
-          onClick={() => navigate("/save-history")}
-          className="w-full h-14 text-base gap-3 bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          {labels.resultContinue}
-          <ArrowRight className="w-5 h-5" />
-        </Button>
+        {/* Auth-aware save section */}
+        {user ? (
+          /* Signed in: show "Saved" badge */
+          <div className="flex items-center gap-3 rounded-xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5 px-5 py-4">
+            <CheckCircle2 className="w-5 h-5 text-primary shrink-0" strokeWidth={1.5} />
+            <span className="text-sm font-medium text-foreground">{labels.resultSaved}</span>
+          </div>
+        ) : !savePromptDismissed ? (
+          /* Not signed in: show save prompt card */
+          <div className="rounded-xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5 p-5 flex flex-col gap-4">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-base font-semibold text-foreground leading-snug">
+                {labels.resultSavePrompt}
+              </p>
+              <button
+                type="button"
+                onClick={() => setSavePromptDismissed(true)}
+                aria-label={labels.resultNotNow}
+                className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+            </div>
+            <div className="flex gap-3">
+              <Link
+                to="/signup"
+                className="flex-1 rounded-xl bg-primary text-primary-foreground h-12 px-6 font-medium hover:brightness-105 transition-all inline-flex items-center justify-center text-sm"
+              >
+                {labels.resultCreateAccount}
+              </Link>
+              <button
+                type="button"
+                onClick={() => setSavePromptDismissed(true)}
+                className="rounded-xl text-muted-foreground hover:bg-white/5 transition-colors px-4 h-12 text-sm"
+              >
+                {labels.resultNotNow}
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         <Button
           onClick={() => setCallDialogOpen(true)}
           variant="outline"
@@ -193,32 +230,32 @@ export function ResultPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-heading text-2xl">
-              Live translated call
+              {labels.callDialogTitle}
             </DialogTitle>
             <DialogDescription className="text-base">
-              Call the office with real-time {langName} ↔ English translation.
+              {labels.callDialogBody(langName)}
             </DialogDescription>
           </DialogHeader>
 
           {/* Status pill */}
           <div className="flex items-center gap-2">
             {callStatus === "idle" && (
-              <Badge variant="outline">Ready</Badge>
+              <Badge variant="outline">{labels.callReady}</Badge>
             )}
             {callStatus === "connecting" && (
               <Badge variant="secondary" className="gap-1">
                 <Loader2 className="w-3 h-3 animate-spin" />
-                Connecting…
+                {labels.callConnecting}
               </Badge>
             )}
             {callStatus === "active" && (
               <Badge variant="default" className="gap-1">
                 <PhoneCall className="w-3 h-3" />
-                In Call
+                {labels.callActive}
               </Badge>
             )}
             {callStatus === "ended" && (
-              <Badge variant="outline">Call Ended</Badge>
+              <Badge variant="outline">{labels.callEnded}</Badge>
             )}
           </div>
 
@@ -229,7 +266,7 @@ export function ResultPage() {
                 htmlFor="phone-input"
                 className="text-sm font-medium text-foreground"
               >
-                Office phone number
+                {labels.callPhoneLabel}
               </label>
               <Input
                 id="phone-input"
@@ -257,7 +294,7 @@ export function ResultPage() {
             <ScrollArea className="h-52 rounded-lg border bg-muted/30 p-3">
               {transcript.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-6">
-                  Waiting for audio…
+                  {labels.callWaitingAudio}
                 </p>
               ) : (
                 <div className="flex flex-col gap-3">
@@ -274,7 +311,7 @@ export function ResultPage() {
                         }
                         className="text-[10px] px-1.5 py-0"
                       >
-                        {line.speaker === "agent" ? "Office" : "You"}
+                        {line.speaker === "agent" ? labels.callOfficeLabel : labels.callYouLabel}
                         {" · "}
                         {line.language}
                       </Badge>
@@ -303,13 +340,13 @@ export function ResultPage() {
                 className="gap-2"
               >
                 <Phone className="w-4 h-4" />
-                Start Call
+                {labels.callStart}
               </Button>
             )}
             {callStatus === "connecting" && (
               <Button disabled className="gap-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Connecting…
+                {labels.callConnecting}
               </Button>
             )}
             {callStatus === "active" && (
@@ -319,7 +356,7 @@ export function ResultPage() {
                 className="gap-2"
               >
                 <PhoneOff className="w-4 h-4" />
-                End Call
+                {labels.callEnd}
               </Button>
             )}
             {callStatus === "ended" && (
@@ -334,7 +371,7 @@ export function ResultPage() {
                 className="gap-2"
               >
                 <Phone className="w-4 h-4" />
-                Call Again
+                {labels.callAgain}
               </Button>
             )}
           </DialogFooter>

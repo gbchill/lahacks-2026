@@ -129,20 +129,20 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
-      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-5">
+    <div className="rounded-2xl bg-card/60 backdrop-blur-xl ring-1 ring-white/10 shadow-lg shadow-black/5 p-5">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/70 mb-4">
         {labels.timelineHeading}
       </p>
 
       <div className="relative">
-        <div className="absolute left-[15px] top-4 bottom-4 w-px bg-border" />
+        <div className="absolute left-[11px] top-3 bottom-3 w-px bg-white/8" />
         <motion.div
-          className="absolute left-[15px] top-4 w-px bg-success origin-top"
+          className="absolute left-[11px] top-3 w-px bg-emerald-400/40 origin-top"
           initial={{ scaleY: 0 }}
           animate={{
             scaleY: allDone ? 1 : agentStates.filter((s) => s === "done").length / AGENTS.length,
           }}
-          style={{ height: "calc(100% - 2rem)" }}
+          style={{ height: "calc(100% - 1.5rem)" }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         />
 
@@ -163,34 +163,29 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                 aria-label={`${name} ${state}`}
                 disabled={state !== "done"}
                 className={cn(
-                  "relative w-full text-left pl-10 pr-2 py-3.5 rounded-lg transition-colors duration-200",
-                  state === "done" && "hover:bg-secondary/50 cursor-pointer",
+                  "relative w-full text-left pl-8 pr-2 py-3 rounded-lg transition-colors duration-200",
+                  state === "done" && "hover:bg-white/5 cursor-pointer",
                   state !== "done" && "cursor-default",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card",
                 )}
               >
-                <div className="absolute left-0 top-3.5 w-[31px] flex items-center justify-center">
+                <div className="absolute left-0 top-3 w-[23px] flex items-center justify-center">
                   {state === "idle" && (
-                    <div className="w-[11px] h-[11px] rounded-full border-2 border-border bg-card" />
+                    <div className="w-[9px] h-[9px] rounded-full border border-white/15 bg-transparent" />
                   )}
                   {state === "active" && (
                     <motion.div
                       initial={{ scale: 0.8 }}
                       animate={{ scale: 1 }}
-                      className="w-[11px] h-[11px] rounded-full bg-primary"
+                      className="relative w-[9px] h-[9px] rounded-full bg-primary"
                     >
                       <motion.div
-                        className="absolute inset-0 w-[11px] h-[11px] rounded-full bg-primary"
-                        animate={{ scale: [1, 1.8], opacity: [0.4, 0] }}
+                        className="absolute inset-0 w-[9px] h-[9px] rounded-full bg-primary"
+                        animate={{ scale: [1, 1.6], opacity: [0.3, 0] }}
                         transition={{
-                          duration: 1.2,
+                          duration: 1.4,
                           repeat: Infinity,
                           ease: "easeOut",
-                        }}
-                        style={{
-                          position: "absolute",
-                          left: 0,
-                          top: 0,
                         }}
                       />
                     </motion.div>
@@ -199,10 +194,10 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                      className="w-[17px] h-[17px] rounded-full bg-success flex items-center justify-center"
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                      className="w-[15px] h-[15px] rounded-full border border-emerald-400/40 flex items-center justify-center"
                     >
-                      <Check className="w-[11px] h-[11px] text-success-foreground" strokeWidth={3} />
+                      <Check className="w-[9px] h-[9px] text-emerald-400" strokeWidth={2.5} />
                     </motion.div>
                   )}
                 </div>
@@ -211,9 +206,9 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                   <div className="min-w-0">
                     <span
                       className={cn(
-                        "text-sm font-medium transition-colors duration-200",
-                        state === "idle" && "text-muted-foreground/60",
-                        state === "active" && "text-primary",
+                        "text-sm transition-colors duration-200",
+                        state === "idle" && "text-muted-foreground/40",
+                        state === "active" && "font-medium text-primary",
                         state === "done" && "text-foreground",
                       )}
                     >
@@ -221,9 +216,9 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                     </span>
                     {state === "active" && (
                       <motion.p
-                        initial={{ opacity: 0, y: -4 }}
+                        initial={{ opacity: 0, y: -3 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-xs text-primary/70 mt-0.5"
+                        className="text-xs text-muted-foreground/50 mt-0.5"
                       >
                         {agent.getActiveLabel(labels)}
                       </motion.p>
@@ -234,7 +229,7 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                     <motion.span
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="font-mono text-xs text-muted-foreground flex-shrink-0"
+                      className="font-mono text-xs tabular-nums text-muted-foreground/50 flex-shrink-0"
                     >
                       {elapsedLabel}
                     </motion.span>
@@ -247,10 +242,10 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
                     >
-                      <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                      <p className="text-xs text-muted-foreground/60 mt-1.5 leading-relaxed">
                         {agent.getDetail(data)}
                       </p>
                     </motion.div>
@@ -265,12 +260,12 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
       <AnimatePresence>
         {allDone && (
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-5 pt-4 border-t border-border flex items-center justify-center"
+            transition={{ duration: 0.3, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-4 pt-3 border-t border-white/5 flex items-center justify-center"
           >
-            <span className="font-mono text-sm text-muted-foreground">
+            <span className="font-mono text-xs tabular-nums text-muted-foreground/50">
               {labels.timelineDoneFooter(totalSeconds)}
             </span>
           </motion.div>

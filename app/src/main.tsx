@@ -4,23 +4,26 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import { Toaster } from "sonner";
 import { App } from "./App";
+import { AuthProvider } from "./contexts/auth-context";
 import { LanguageProvider } from "./contexts/language-context";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
-      <LanguageProvider>
-        <App />
-        <Toaster
-          position="bottom-center"
-          toastOptions={{
-            style: {
-              fontFamily: "var(--font-sans)",
-              borderRadius: "var(--radius)",
-            },
-          }}
-        />
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <App />
+          <Toaster
+            position="bottom-center"
+            toastOptions={{
+              style: {
+                fontFamily: "var(--font-sans)",
+                borderRadius: "var(--radius)",
+              },
+            }}
+          />
+        </LanguageProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );
