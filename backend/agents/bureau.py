@@ -12,9 +12,11 @@ from agents.translator import translator
 
 
 def build_bureau() -> Bureau:
+    _endpoint = os.getenv("AGENT_ENDPOINT", "http://144.202.31.14:8001")
     bureau = Bureau(
         port=int(os.getenv("BUREAU_PORT", "8001")),
-        loop=asyncio.get_event_loop(),
+        loop=asyncio.get_running_loop(),
+        endpoint=[f"{_endpoint}/submit"],
     )
     bureau.add(orchestrator)
     bureau.add(parser)
