@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Camera, RotateCcw, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/language-context";
+import { getLabels } from "@/lib/menu-labels";
 
 type CameraCardProps = {
   onPhotoCaptured: (file: File) => void;
@@ -12,6 +14,8 @@ type CameraCardProps = {
 };
 
 export function CameraCard({ onPhotoCaptured, onContinue, file, disabled }: CameraCardProps) {
+  const { code } = useLanguage();
+  const labels = getLabels(code);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -75,7 +79,7 @@ export function CameraCard({ onPhotoCaptured, onContinue, file, disabled }: Came
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            aria-label="Take a photo or upload a document"
+            aria-label={labels.cameraTitle}
             className={cn(
               "w-full aspect-[3/4] sm:aspect-square rounded-2xl border-2 border-dashed",
               "flex flex-col items-center justify-center gap-5 cursor-pointer",
@@ -102,10 +106,10 @@ export function CameraCard({ onPhotoCaptured, onContinue, file, disabled }: Came
             </div>
             <div className="text-center px-6">
               <p className="text-foreground font-medium text-lg">
-                Take a photo of any English letter
+                {labels.cameraTitle}
               </p>
               <p className="text-muted-foreground text-sm mt-1.5">
-                Tap to open camera, or drag a photo here
+                {labels.cameraSubtitle}
               </p>
             </div>
           </motion.button>
@@ -132,19 +136,19 @@ export function CameraCard({ onPhotoCaptured, onContinue, file, disabled }: Came
                 variant="outline"
                 onClick={handleRetake}
                 className="flex-1 h-12 text-base gap-2"
-                aria-label="Retake photo"
+                aria-label={labels.cameraRetake}
               >
                 <RotateCcw className="w-4 h-4" />
-                Retake
+                {labels.cameraRetake}
               </Button>
               <Button
                 type="button"
                 onClick={onContinue}
                 disabled={disabled}
                 className="flex-1 h-12 text-base gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-                aria-label="Continue to explanation"
+                aria-label={labels.cameraContinue}
               >
-                Continue
+                {labels.cameraContinue}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </div>

@@ -1,4 +1,6 @@
 import { Calendar, AlertCircle, DollarSign } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
+import { getLabels } from "@/lib/menu-labels";
 import { cn } from "@/lib/utils";
 import type { KeyFacts as KeyFactsType } from "@/lib/api";
 
@@ -19,6 +21,8 @@ function isDeadlineSoon(deadline: string | null): boolean {
 }
 
 export function KeyFacts({ facts }: KeyFactsProps) {
+  const { code } = useLanguage();
+  const labels = getLabels(code);
   const deadlineSoon = isDeadlineSoon(facts.deadline);
   const hasAny = facts.deadline || facts.action_required || facts.amount_due;
 
@@ -27,19 +31,19 @@ export function KeyFacts({ facts }: KeyFactsProps) {
   const cards = [
     {
       icon: Calendar,
-      label: "Deadline",
+      label: labels.factsDeadline,
       value: facts.deadline,
       urgent: deadlineSoon,
     },
     {
       icon: AlertCircle,
-      label: "Action Required",
+      label: labels.factsAction,
       value: facts.action_required,
       urgent: false,
     },
     {
       icon: DollarSign,
-      label: "Amount Due",
+      label: labels.factsAmount,
       value: facts.amount_due,
       urgent: false,
     },

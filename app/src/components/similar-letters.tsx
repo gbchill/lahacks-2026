@@ -1,16 +1,21 @@
 import { FileText } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
+import { getLabels } from "@/lib/menu-labels";
 
 type SimilarLettersProps = {
   documentIds: string[];
 };
 
 export function SimilarLetters({ documentIds }: SimilarLettersProps) {
+  const { code } = useLanguage();
+  const labels = getLabels(code);
+
   if (documentIds.length === 0) return null;
 
   return (
     <div>
       <h3 className="text-sm font-medium text-muted-foreground mb-3">
-        We've seen letters like this before
+        {labels.similarHeading}
       </h3>
       <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
         {documentIds.map((id) => (

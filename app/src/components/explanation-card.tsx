@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
+import { getLabels, getNativeName } from "@/lib/menu-labels";
 import { cn } from "@/lib/utils";
 
 type ExplanationCardProps = {
@@ -9,22 +11,17 @@ type ExplanationCardProps = {
   targetLanguage: string;
 };
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  "zh-CN": "Chinese",
-  es: "Spanish",
-  vi: "Vietnamese",
-  ro: "Romanian",
-};
-
 export function ExplanationCard({ translated, english, targetLanguage }: ExplanationCardProps) {
   const [showEnglish, setShowEnglish] = useState(false);
-  const langName = LANGUAGE_NAMES[targetLanguage] ?? targetLanguage;
+  const { code } = useLanguage();
+  const labels = getLabels(code);
+  const langName = getNativeName(code ?? targetLanguage);
 
   return (
     <div className="space-y-4">
       <div>
         <p className="text-sm text-muted-foreground mb-2">
-          Explained in {langName}
+          {labels.explainedIn(langName)}
         </p>
         <p className="text-xl sm:text-2xl leading-relaxed text-foreground">
           {translated}
@@ -49,7 +46,7 @@ export function ExplanationCard({ translated, english, targetLanguage }: Explana
             showEnglish && "rotate-180",
           )}
         />
-        {showEnglish ? "Hide English" : "Show English"}
+        {showEnglish ? labels.hideEnglish : labels.showEnglish}
       </button>
 
       <AnimatePresence>

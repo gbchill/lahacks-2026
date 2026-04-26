@@ -4,21 +4,23 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { CameraCard } from "@/components/camera-card";
-import { LanguagePicker } from "@/components/language-picker";
 import { explainDocument } from "@/lib/api";
+import { useLanguage } from "@/contexts/language-context";
+import { getLabels } from "@/lib/menu-labels";
 
 export function CapturePage() {
   const navigate = useNavigate();
+  const { code } = useLanguage();
+  const labels = getLabels(code);
   const [file, setFile] = useState<File | null>(null);
-  const [language, setLanguage] = useState("zh-CN");
   const [loading, setLoading] = useState(false);
 
   const handleContinue = async () => {
-    if (!file) return;
+    if (!file || !code) return;
     setLoading(true);
 
     try {
-      const response = await explainDocument(file, "demo-user-1", language);
+      const response = await explainDocument(file, "demo-user-1", code);
       navigate(`/result/${response.document_id}`, { state: response });
     } catch (err) {
       const message =
@@ -26,15 +28,13 @@ export function CapturePage() {
       const isRateLimit = message.includes("RESOURCE_EXHAUSTED") || message.includes("429");
       const isOcr = message.includes("ocr");
       toast.error(
-        isRateLimit
-          ? "Too many requests"
-          : "We couldn't read that photo",
+        isRateLimit ? labels.toastTooMany : labels.toastReadFailed,
         {
           description: isRateLimit
-            ? "The API is temporarily overloaded. Wait a minute and try again."
+            ? labels.toastTooManyDesc
             : isOcr
-              ? "Try better lighting or a clearer angle."
-              : "Please try again in a moment.",
+              ? labels.toastReadOcrDesc
+              : labels.toastTryAgain,
         },
       );
     } finally {
@@ -51,10 +51,10 @@ export function CapturePage() {
     >
       <div>
         <h1 className="font-heading text-3xl text-foreground">
-          What letter did you get?
+          {labels.captureHeading}
         </h1>
         <p className="text-muted-foreground mt-1.5">
-          Take a photo and we'll explain it in your language.
+          {labels.captureSubtitle}
         </p>
       </div>
 
@@ -65,8 +65,6 @@ export function CapturePage() {
         disabled={loading}
       />
 
-      <LanguagePicker value={language} onChange={setLanguage} />
-
       {loading && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -74,9 +72,7 @@ export function CapturePage() {
           className="flex items-center justify-center gap-3 py-6 text-muted-foreground"
         >
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-base">
-            Our agents are reading your document...
-          </span>
+          <span className="text-base">{labels.captureLoading}</span>
         </motion.div>
       )}
     </motion.div>

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Play, Pause } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
+import { getLabels } from "@/lib/menu-labels";
 import { cn } from "@/lib/utils";
 
 type AudioPlayerProps = {
@@ -14,6 +16,8 @@ function formatTime(seconds: number): string {
 }
 
 export function AudioPlayer({ src, label }: AudioPlayerProps) {
+  const { code } = useLanguage();
+  const labels = getLabels(code);
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -83,7 +87,7 @@ export function AudioPlayer({ src, label }: AudioPlayerProps) {
     <div
       className="flex items-center gap-4 p-4 rounded-xl bg-secondary/60 border border-border"
       role="region"
-      aria-label="Audio player"
+      aria-label={labels.audioPlayerLabel}
       onKeyDown={handleKeyDown}
     >
       <audio ref={audioRef} src={src} preload="metadata" />
@@ -91,7 +95,7 @@ export function AudioPlayer({ src, label }: AudioPlayerProps) {
       <button
         type="button"
         onClick={togglePlay}
-        aria-label={playing ? "Pause" : "Play"}
+        aria-label={playing ? labels.pause : labels.play}
         className={cn(
           "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0",
           "bg-primary text-primary-foreground",
@@ -111,7 +115,7 @@ export function AudioPlayer({ src, label }: AudioPlayerProps) {
           ref={progressRef}
           onClick={handleSeek}
           role="slider"
-          aria-label="Audio progress"
+          aria-label={labels.audioProgress}
           aria-valuemin={0}
           aria-valuemax={Math.round(duration)}
           aria-valuenow={Math.round(currentTime)}
