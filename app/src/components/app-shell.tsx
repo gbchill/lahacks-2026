@@ -11,7 +11,7 @@ export function AppShell() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-white/5">
         <div className="px-5 h-14 flex items-center">
-          <OrisionWordmark size="lg" />
+          <OrisionWordmark size="md" />
         </div>
       </header>
 

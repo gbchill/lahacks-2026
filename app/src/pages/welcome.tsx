@@ -90,9 +90,9 @@ export function WelcomePage() {
   const current = SUBTITLE_CYCLE[subtitleIndex];
 
   return (
-    <main className="flex min-h-screen flex-col overflow-hidden bg-background px-6 py-6 sm:py-10">
+    <main className="flex min-h-screen flex-col overflow-hidden bg-background px-5 py-6">
       <header className="flex items-center">
-        <OrisionWordmark size="md" linked={false} />
+        <OrisionWordmark size="md" />
       </header>
 
       <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
