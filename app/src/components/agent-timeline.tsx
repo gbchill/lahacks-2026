@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
+import { getLabels, getNativeName } from "@/lib/menu-labels";
 import { cn } from "@/lib/utils";
 import type { PipelineTiming, ExplainResponse } from "@/lib/api";
 
 type AgentState = "idle" | "active" | "done";
+type Labels = ReturnType<typeof getLabels>;
 
 type AgentDef = {
   id: string;
-  name: string;
-  activeLabel: string;
+  getName: (labels: Labels) => string;
+  getActiveLabel: (labels: Labels) => string;
   getDetail: (data: ExplainResponse) => string;
   getTiming: (t: PipelineTiming) => number;
 };
@@ -17,22 +20,22 @@ type AgentDef = {
 const AGENTS: AgentDef[] = [
   {
     id: "parser",
-    name: "Parser",
-    activeLabel: "Reading the document...",
+    getName: (labels) => labels.agentParser,
+    getActiveLabel: (labels) => labels.agentParserActive,
     getDetail: (data) => {
       const snippet = data.english_explanation.split(".")[0];
-      return snippet ? `"${snippet.trim().slice(0, 80)}..."` : "Extracted document text";
+      return snippet ? `"${snippet.trim().slice(0, 80)}..."` : data.document_type;
     },
     getTiming: (t) => t.ocr ?? 0,
   },
   {
     id: "context",
-    name: "Context",
-    activeLabel: "Looking through your past letters...",
+    getName: (labels) => labels.agentContext,
+    getActiveLabel: (labels) => labels.agentContextActive,
     getDetail: (data) =>
       data.similar_past_documents.length > 0
-        ? `Found ${data.similar_past_documents.length} similar past document${data.similar_past_documents.length > 1 ? "s" : ""}`
-        : "No past documents found — this is your first",
+        ? `${data.similar_past_documents.length}`
+        : data.document_type,
     getTiming: (t) => {
       const gap = (t.explanation ?? 0) - (t.ocr ?? 0);
       return Math.max(gap * 0.3, 200);
@@ -40,27 +43,19 @@ const AGENTS: AgentDef[] = [
   },
   {
     id: "drafter",
-    name: "Drafter",
-    activeLabel: "Writing the explanation...",
+    getName: (labels) => labels.agentDrafter,
+    getActiveLabel: (labels) => labels.agentDrafterActive,
     getDetail: (data) => {
       const first = data.english_explanation.split(".")[0];
-      return first ? `"${first.trim()}"` : "Composed plain-English explanation";
+      return first ? `"${first.trim()}"` : data.document_type;
     },
     getTiming: (t) => t.explanation ?? 0,
   },
   {
     id: "translator",
-    name: "Translator",
-    activeLabel: "Translating...",
-    getDetail: (data) => {
-      const langs: Record<string, string> = {
-        "zh-CN": "Simplified Chinese",
-        es: "Spanish",
-        vi: "Vietnamese",
-        ro: "Romanian",
-      };
-      return `Translated to ${langs[data.target_language] ?? data.target_language}`;
-    },
+    getName: (labels) => labels.agentTranslator,
+    getActiveLabel: (labels) => labels.agentTranslatorActive,
+    getDetail: (data) => getNativeName(data.target_language),
     getTiming: (t) => (t.translation ?? 0) + (t.tts ?? 0),
   },
 ];
@@ -71,6 +66,8 @@ type AgentTimelineProps = {
 };
 
 export function AgentTimeline({ timing, data }: AgentTimelineProps) {
+  const { code } = useLanguage();
+  const labels = getLabels(code);
   const [agentStates, setAgentStates] = useState<AgentState[]>(() =>
     AGENTS.map(() => "idle"),
   );
@@ -125,7 +122,7 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
   }, [realTimings, totalReal]);
 
   const allDone = agentStates.every((s) => s === "done");
-  const totalSeconds = timing.total ? (timing.total / 1000).toFixed(1) : "—";
+  const totalSeconds = timing.total ? (timing.total / 1000).toFixed(1) : "-";
 
   const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -134,11 +131,10 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-5">
-        4 specialist agents working together
+        {labels.timelineHeading}
       </p>
 
       <div className="relative">
-        {/* Connecting line */}
         <div className="absolute left-[15px] top-4 bottom-4 w-px bg-border" />
         <motion.div
           className="absolute left-[15px] top-4 w-px bg-success origin-top"
@@ -156,6 +152,7 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
             const expanded = expandedId === agent.id;
             const elapsedMs = realTimings[i];
             const elapsedLabel = (elapsedMs / 1000).toFixed(1) + "s";
+            const name = agent.getName(labels);
 
             return (
               <button
@@ -163,7 +160,7 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                 type="button"
                 onClick={() => state === "done" && toggleExpand(agent.id)}
                 aria-expanded={expanded}
-                aria-label={`${agent.name} agent — ${state === "done" ? "completed" : state}`}
+                aria-label={`${name} ${state}`}
                 disabled={state !== "done"}
                 className={cn(
                   "relative w-full text-left pl-10 pr-2 py-3.5 rounded-lg transition-colors duration-200",
@@ -172,7 +169,6 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card",
                 )}
               >
-                {/* Circle indicator */}
                 <div className="absolute left-0 top-3.5 w-[31px] flex items-center justify-center">
                   {state === "idle" && (
                     <div className="w-[11px] h-[11px] rounded-full border-2 border-border bg-card" />
@@ -211,7 +207,6 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                   )}
                 </div>
 
-                {/* Content */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
                     <span
@@ -222,7 +217,7 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                         state === "done" && "text-foreground",
                       )}
                     >
-                      {agent.name}
+                      {name}
                     </span>
                     {state === "active" && (
                       <motion.p
@@ -230,7 +225,7 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-xs text-primary/70 mt-0.5"
                       >
-                        {agent.activeLabel}
+                        {agent.getActiveLabel(labels)}
                       </motion.p>
                     )}
                   </div>
@@ -246,7 +241,6 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
                   )}
                 </div>
 
-                {/* Expanded detail */}
                 <AnimatePresence>
                   {expanded && state === "done" && (
                     <motion.div
@@ -268,7 +262,6 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
         </div>
       </div>
 
-      {/* Total time footer */}
       <AnimatePresence>
         {allDone && (
           <motion.div
@@ -278,7 +271,7 @@ export function AgentTimeline({ timing, data }: AgentTimelineProps) {
             className="mt-5 pt-4 border-t border-border flex items-center justify-center"
           >
             <span className="font-mono text-sm text-muted-foreground">
-              Done in {totalSeconds}s&nbsp;&nbsp;·&nbsp;&nbsp;4 agents
+              {labels.timelineDoneFooter(totalSeconds)}
             </span>
           </motion.div>
         )}

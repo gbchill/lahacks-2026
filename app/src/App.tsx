@@ -1,18 +1,73 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { AppShell } from "./components/app-shell";
-import { LandingPage } from "./pages/landing";
+import { WelcomePage } from "./pages/welcome";
+import { HomePage } from "./pages/home";
 import { CapturePage } from "./pages/capture";
 import { ResultPage } from "./pages/result";
+import { SaveHistoryPage } from "./pages/save-history";
+import { SignupPage } from "./pages/signup";
 import { FamilyPage } from "./pages/family";
+import { useLanguage } from "./contexts/language-context";
+
+function RequireLanguage({ children }: { children: React.ReactNode }) {
+  const { code } = useLanguage();
+  if (!code) return <Navigate to="/welcome" replace />;
+  return <>{children}</>;
+}
 
 export function App() {
   return (
     <Routes>
       <Route element={<AppShell />}>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/capture" element={<CapturePage />} />
-        <Route path="/result/:documentId" element={<ResultPage />} />
-        <Route path="/family" element={<FamilyPage />} />
+        <Route path="/welcome" element={<WelcomePage />} />
+        <Route
+          path="/"
+          element={
+            <RequireLanguage>
+              <HomePage />
+            </RequireLanguage>
+          }
+        />
+        <Route
+          path="/capture"
+          element={
+            <RequireLanguage>
+              <CapturePage />
+            </RequireLanguage>
+          }
+        />
+        <Route
+          path="/result/:documentId"
+          element={
+            <RequireLanguage>
+              <ResultPage />
+            </RequireLanguage>
+          }
+        />
+        <Route
+          path="/save-history"
+          element={
+            <RequireLanguage>
+              <SaveHistoryPage />
+            </RequireLanguage>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <RequireLanguage>
+              <SignupPage />
+            </RequireLanguage>
+          }
+        />
+        <Route
+          path="/family"
+          element={
+            <RequireLanguage>
+              <FamilyPage />
+            </RequireLanguage>
+          }
+        />
       </Route>
     </Routes>
   );

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Phone, ArrowLeft } from "lucide-react";
+import { Phone, ArrowLeft, ArrowRight } from "lucide-react";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExplanationCard } from "@/components/explanation-card";
 import { AudioPlayer } from "@/components/audio-player";
@@ -9,6 +9,7 @@ import { KeyFacts } from "@/components/key-facts";
 import { SimilarLetters } from "@/components/similar-letters";
 import { AgentTimeline } from "@/components/agent-timeline";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/language-context";
 import {
   Dialog,
   DialogContent,
@@ -18,16 +19,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import type { ExplainResponse } from "@/lib/api";
-
-const LANGUAGE_NAMES: Record<string, string> = {
-  "zh-CN": "Chinese",
-  es: "Spanish",
-  vi: "Vietnamese",
-  ro: "Romanian",
-};
+import { getLabels, getNativeName } from "@/lib/menu-labels";
 
 export function ResultPage() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { code } = useLanguage();
+  const labels = getLabels(code);
   const data = location.state as ExplainResponse | null;
   const [callDialogOpen, setCallDialogOpen] = useState(false);
 
@@ -35,20 +33,20 @@ export function ResultPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center gap-4">
         <p className="text-muted-foreground text-lg">
-          Document not found
+          {labels.resultNotFound}
         </p>
         <Link
           to="/capture"
           className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium"
         >
           <ArrowLeft className="w-4 h-4" />
-          Take a new photo
+          {labels.resultTakeNew}
         </Link>
       </div>
     );
   }
 
-  const langName = LANGUAGE_NAMES[data.target_language] ?? data.target_language;
+  const langName = getNativeName(code ?? data.target_language);
 
   return (
     <motion.div
@@ -67,7 +65,7 @@ export function ResultPage() {
 
       <AudioPlayer
         src={data.audio_url}
-        label={`Explained in ${langName}`}
+        label={labels.explainedIn(langName)}
       />
 
       <KeyFacts facts={data.key_facts} />
@@ -76,14 +74,21 @@ export function ResultPage() {
 
       <SimilarLetters documentIds={data.similar_past_documents} />
 
-      <div className="pt-4">
+      <div className="pt-4 flex flex-col gap-3">
+        <Button
+          onClick={() => navigate("/save-history")}
+          className="w-full h-14 text-base gap-3 bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          {labels.resultContinue}
+          <ArrowRight className="w-5 h-5" />
+        </Button>
         <Button
           onClick={() => setCallDialogOpen(true)}
           variant="outline"
           className="w-full h-14 text-base gap-3 border-2"
         >
           <Phone className="w-5 h-5" />
-          Call the office
+          {labels.resultCallOffice}
         </Button>
       </div>
 
@@ -91,15 +96,13 @@ export function ResultPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-heading text-2xl">
-              Live translated calls
+              {labels.callDialogTitle}
             </DialogTitle>
             <DialogDescription className="text-base">
-              Call any office with real-time translation — coming next.
-              We'll connect you with an interpreter who speaks {langName}.
+              {labels.callDialogBody(langName)}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter showCloseButton>
-          </DialogFooter>
+          <DialogFooter showCloseButton />
         </DialogContent>
       </Dialog>
     </motion.div>
