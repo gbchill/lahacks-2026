@@ -157,7 +157,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     captureSubtitle: "Take a photo and we'll explain it in your language.",
     captureLoading: "Our agents are reading your document…",
 
-    cameraTitle: "Take a photo of any English letter",
+    cameraTitle: "Upload the document you would like translated",
     cameraSubtitle: "Tap to open camera, or drag a photo here",
     cameraRetake: "Retake",
     cameraContinue: "Continue",
@@ -252,7 +252,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     captureSubtitle: "拍一张照片,我们用您的语言为您解释。",
     captureLoading: "我们的助手正在阅读您的文件…",
 
-    cameraTitle: "拍摄任何英文信件的照片",
+    cameraTitle: "上传您想翻译的文件",
     cameraSubtitle: "点击打开相机,或将照片拖到此处",
     cameraRetake: "重拍",
     cameraContinue: "继续",
@@ -347,7 +347,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     captureSubtitle: "Toma una foto y te la explicaremos en tu idioma.",
     captureLoading: "Nuestros agentes están leyendo tu documento…",
 
-    cameraTitle: "Toma una foto de cualquier carta en inglés",
+    cameraTitle: "Sube el documento que quieres traducir",
     cameraSubtitle: "Toca para abrir la cámara, o arrastra una foto aquí",
     cameraRetake: "Volver a tomar",
     cameraContinue: "Continuar",
@@ -443,7 +443,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     captureSubtitle: "Chụp một bức ảnh và chúng tôi sẽ giải thích bằng ngôn ngữ của bạn.",
     captureLoading: "Các trợ lý của chúng tôi đang đọc tài liệu của bạn…",
 
-    cameraTitle: "Chụp ảnh bất kỳ lá thư tiếng Anh nào",
+    cameraTitle: "Tải lên tài liệu bạn muốn dịch",
     cameraSubtitle: "Chạm để mở máy ảnh, hoặc kéo ảnh vào đây",
     cameraRetake: "Chụp lại",
     cameraContinue: "Tiếp tục",
@@ -539,7 +539,7 @@ export const MENU_LABELS: Record<string, MenuLabels> = {
     captureSubtitle: "Faceți o fotografie și o vom explica în limba dumneavoastră.",
     captureLoading: "Asistenții noștri vă citesc documentul…",
 
-    cameraTitle: "Faceți o fotografie a oricărei scrisori în engleză",
+    cameraTitle: "Încărcați documentul pe care doriți să îl traduceți",
     cameraSubtitle: "Atingeți pentru a deschide camera sau trageți o fotografie aici",
     cameraRetake: "Refaceți",
     cameraContinue: "Continuați",

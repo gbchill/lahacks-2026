@@ -7,6 +7,7 @@ import { ResultPage } from "./pages/result";
 import { SaveHistoryPage } from "./pages/save-history";
 import { SignupPage } from "./pages/signup";
 import { FamilyPage } from "./pages/family";
+import { TranslatingPage } from "./routes/translating";
 import { useLanguage } from "./contexts/language-context";
 
 function RequireLanguage({ children }: { children: React.ReactNode }) {
@@ -19,6 +20,14 @@ export function App() {
   return (
     <Routes>
       <Route path="/welcome" element={<WelcomePage />} />
+      <Route
+        path="/translating"
+        element={
+          <RequireLanguage>
+            <TranslatingPage />
+          </RequireLanguage>
+        }
+      />
       <Route element={<AppShell />}>
         <Route
           path="/"
