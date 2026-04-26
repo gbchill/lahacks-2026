@@ -5,8 +5,9 @@ export type Language = {
 };
 
 export const LANGUAGES: Language[] = [
-  { code: "zh-CN", native: "中文", label: "Mandarin" },
+  { code: "en", native: "English", label: "English" },
   { code: "es", native: "Español", label: "Spanish" },
+  { code: "zh-CN", native: "中文", label: "Mandarin" },
   { code: "vi", native: "Tiếng Việt", label: "Vietnamese" },
   { code: "ro", native: "Română", label: "Romanian" },
 ];

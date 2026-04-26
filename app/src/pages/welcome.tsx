@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Mic } from "lucide-react";
+import { ArrowRight, Globe, Mic } from "lucide-react";
 import { LanguageDropdown } from "@/components/language-picker";
 import { useLanguage } from "@/contexts/language-context";
 import { getLabels } from "@/lib/menu-labels";
@@ -58,18 +58,30 @@ export function WelcomePage() {
   const current = SUBTITLE_CYCLE[subtitleIndex];
 
   return (
-    <div className="flex min-h-[80vh] flex-col items-center px-4 text-center">
-      <div className="flex min-h-[62vh] w-full flex-col items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease }}
-          className="w-full max-w-lg"
-        >
-          <h1 className="font-heading text-6xl sm:text-7xl text-foreground leading-[1.05]">
-            Orision
-          </h1>
-          <div className="h-7 mt-3 overflow-hidden">
+    <main className="flex min-h-screen flex-col overflow-hidden bg-background px-6 py-10 sm:py-16">
+      {/* Brand header — pinned to top-left of the viewport */}
+      <header className="flex items-center justify-center gap-3">
+        <span className="animate-orision-float h-14 w-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+          <Globe className="h-6 w-6" strokeWidth={2.5} />
+        </span>
+        <span className="text-3xl tracking-tight text-foreground/70">
+          Orision
+        </span>
+      </header>
+
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
+        {/* Hero + selector card */}
+        <section className="flex flex-1 flex-col items-center justify-center text-center">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease }}
+            className="font-heading text-6xl sm:text-7xl leading-[1.05] tracking-tight text-balance text-foreground"
+          >
+            {labels.welcomeTitle}
+          </motion.h1>
+
+          <div className="h-9 sm:h-10 mt-5 overflow-hidden max-w-md">
             <AnimatePresence mode="wait">
               <motion.p
                 key={current.code}
@@ -77,105 +89,130 @@ export function WelcomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.4, ease }}
-                className="text-muted-foreground text-base tracking-wide"
+                className="text-xl sm:text-2xl text-foreground/75"
               >
                 {current.text}
               </motion.p>
             </AnimatePresence>
           </div>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease }}
-          className="mt-10 flex w-full max-w-md items-stretch justify-center gap-3"
-        >
-          <div className="min-w-0 flex-1">
-            <LanguageDropdown
-              value={pending}
-              onChange={setPending}
-              placeholder={labels.welcomeSubtitle}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={handleMicClick}
-            aria-label={labels.voicePrompt}
-            aria-pressed={listening}
-            title={labels.voiceComingSoon}
+          <p className="mt-3 text-base text-muted-foreground max-w-md">
+            {labels.voicePrompt}
+          </p>
+
+          {/* Selector card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease }}
             className={cn(
-              "h-16 w-16 rounded-2xl border-2 flex items-center justify-center shrink-0",
-              "transition-all duration-200",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-              listening
-                ? "border-primary bg-primary/10"
-                : "border-border bg-card hover:border-primary/40",
+              "mt-10 w-full max-w-lg rounded-3xl border border-border/60",
+              "bg-card/80 backdrop-blur-sm p-5 sm:p-6",
             )}
+            style={{
+              boxShadow:
+                "0 20px 60px -30px oklch(0.5 0.08 60 / 0.35)",
+            }}
           >
-            <Mic
+            <label
+              htmlFor="welcome-language"
+              className="block text-base font-medium text-foreground/70 mb-3 text-start"
+            >
+              Your language
+            </label>
+
+            <div className="flex items-stretch gap-3">
+              <div className="min-w-0 flex-1">
+                <LanguageDropdown
+                  value={pending}
+                  onChange={setPending}
+                  placeholder={labels.welcomeSubtitle}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleMicClick}
+                aria-label={labels.voicePrompt}
+                aria-pressed={listening}
+                title={labels.voiceComingSoon}
+                className={cn(
+                  "h-16 w-16 rounded-2xl border bg-background shadow-sm shrink-0",
+                  "flex items-center justify-center cursor-pointer transition-all duration-200",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                  listening
+                    ? "border-primary/60 animate-orision-mic-pulse"
+                    : "border-border hover:border-primary/40 hover:bg-accent",
+                )}
+              >
+                <Mic
+                  className={cn(
+                    "w-6 h-6 transition-colors duration-200",
+                    listening ? "text-primary" : "text-foreground/70 group-hover:text-primary",
+                  )}
+                  strokeWidth={2}
+                />
+                {listening && (
+                  <span className="sr-only">{labels.voiceListening}</span>
+                )}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={!pending}
               className={cn(
-                "w-6 h-6 transition-colors duration-200",
-                listening ? "text-primary" : "text-muted-foreground",
+                "group mt-6 w-full h-16 rounded-2xl bg-primary text-primary-foreground",
+                "text-xl font-semibold inline-flex items-center justify-center gap-2 cursor-pointer",
+                "transition-all duration-200",
+                "hover:bg-primary/90 hover:scale-[1.015]",
+                "active:scale-[0.99]",
+                "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/30",
+                "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
               )}
-              strokeWidth={1.75}
-            />
-            {listening && (
-              <span className="sr-only">{labels.voiceListening}</span>
-            )}
-          </button>
-        </motion.div>
+              style={{
+                boxShadow:
+                  "0 14px 30px -12px oklch(0.853 0.044 233 / 0.6)",
+              }}
+            >
+              {labels.welcomeContinue}
+              <ArrowRight
+                className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5"
+                strokeWidth={2.5}
+              />
+            </button>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: listening ? 1 : 0 }}
-          transition={{ duration: 0.25 }}
-          className="h-6 mt-3 flex items-center gap-2 text-sm text-primary"
-          aria-live="polite"
-        >
-          {listening && (
-            <>
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-              </span>
-              {labels.voiceListening}
-            </>
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.35, ease }}
-          className="mt-12"
-        >
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={!pending}
-            className={cn(
-              "inline-flex items-center justify-center gap-2 h-14 px-10 text-lg font-medium rounded-full",
-              "bg-primary text-primary-foreground transition-all",
-              "hover:bg-primary/90",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-              "disabled:opacity-40 disabled:cursor-not-allowed",
-            )}
+          {/* Listening indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: listening ? 1 : 0 }}
+            transition={{ duration: 0.25 }}
+            className="h-6 mt-4 flex items-center gap-2 text-sm text-primary"
+            aria-live="polite"
           >
-            {labels.welcomeContinue}
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </motion.div>
-      </div>
+            {listening && (
+              <>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                </span>
+                {labels.voiceListening}
+              </>
+            )}
+          </motion.div>
+        </section>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.6, ease }}
-        className="text-base text-muted-foreground/70 mt-auto pt-20 pb-8 max-w-sm leading-relaxed"
-      >
-        {labels.statText}
-      </motion.p>
-    </div>
+        {/* Footer */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.6, ease }}
+          className="mt-10 mx-auto max-w-md text-center text-xl sm:text-2xl leading-relaxed text-muted-foreground"
+        >
+          {labels.statText}
+        </motion.p>
+      </div>
+    </main>
   );
 }

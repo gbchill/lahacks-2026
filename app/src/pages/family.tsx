@@ -28,7 +28,7 @@ function TimelineSkeleton() {
   return (
     <div className="space-y-4">
       {[1, 2, 3].map((i) => (
-        <Card key={i} className="border border-[#E8E0D5]">
+        <Card key={i} className="border border-border">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-3">
               <Skeleton className="h-5 w-24 rounded-full" />
@@ -49,8 +49,7 @@ function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[40vh] text-center px-4">
       <div
-        className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-        style={{ backgroundColor: "#F5EDE6" }}
+        className="w-20 h-20 rounded-full flex items-center justify-center mb-6 bg-accent text-primary"
         aria-hidden="true"
       >
         <svg
@@ -58,7 +57,7 @@ function EmptyState() {
           height="36"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#C45D3E"
+          stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -70,10 +69,10 @@ function EmptyState() {
           <polyline points="10 9 9 9 8 9" />
         </svg>
       </div>
-      <h3 className="font-heading text-2xl text-[#2A1F1A] mb-3">
+      <h3 className="font-heading text-2xl text-foreground mb-3">
         No documents yet
       </h3>
-      <p className="text-[#6B5B52] text-lg leading-relaxed max-w-xs">
+      <p className="text-muted-foreground text-lg leading-relaxed max-w-xs">
         Upload your first document to get started. We'll keep a clear record of
         everything here for your family.
       </p>
@@ -85,8 +84,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[40vh] text-center px-4">
       <div
-        className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
-        style={{ backgroundColor: "#FDE8E8" }}
+        className="w-20 h-20 rounded-full flex items-center justify-center mb-6 bg-destructive/10 text-destructive"
         aria-hidden="true"
       >
         <svg
@@ -94,7 +92,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
           height="36"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#C45D3E"
+          stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -104,15 +102,15 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
       </div>
-      <h3 className="font-heading text-2xl text-[#2A1F1A] mb-3">
+      <h3 className="font-heading text-2xl text-foreground mb-3">
         Couldn't load documents
       </h3>
-      <p className="text-[#6B5B52] text-lg mb-6 max-w-xs">
+      <p className="text-muted-foreground text-lg mb-6 max-w-xs">
         There was a problem connecting to the server. Please try again.
       </p>
       <Button
         onClick={onRetry}
-        className="bg-[#C45D3E] hover:bg-[#A84C30] text-white px-8 py-3 text-lg h-auto"
+        className="bg-primary hover:bg-primary-hover text-primary-foreground px-8 py-3 text-lg h-auto"
       >
         Try again
       </Button>
@@ -128,17 +126,16 @@ function TimelineCard({ doc }: { doc: TimelineDoc }) {
       : doc.english_explanation;
 
   return (
-    <Card className="border border-[#E8E0D5] bg-white shadow-sm hover:shadow-md transition-shadow duration-200">
+    <Card className="border border-border bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
       <CardHeader className="pb-2 pt-4 px-5">
         <div className="flex flex-wrap items-center gap-3">
           <Badge
-            className="text-white text-sm font-medium px-3 py-1 rounded-full"
-            style={{ backgroundColor: "#C45D3E" }}
+            className="bg-primary text-primary-foreground text-sm font-medium px-3 py-1 rounded-full"
           >
             {docTypeLabel(doc.document_type)}
           </Badge>
           <time
-            className="text-[#6B5B52] text-base"
+            className="text-muted-foreground text-base"
             dateTime={doc.created_at}
           >
             {formatDate(doc.created_at)}
@@ -146,7 +143,7 @@ function TimelineCard({ doc }: { doc: TimelineDoc }) {
         </div>
       </CardHeader>
       <CardContent className="px-5 pb-5">
-        <p className="text-[#2A1F1A] text-lg leading-relaxed mb-4">{snippet}</p>
+        <p className="text-foreground text-lg leading-relaxed mb-4">{snippet}</p>
         {doc.audio_url && (
           <div>
             {audioOpen ? (
@@ -163,7 +160,7 @@ function TimelineCard({ doc }: { doc: TimelineDoc }) {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-[#C45D3E] text-[#C45D3E] hover:bg-[#F5EDE6] text-base h-auto py-2 px-4"
+                className="border-primary text-primary hover:bg-accent text-base h-auto py-2 px-4"
                 onClick={() => setAudioOpen(true)}
                 aria-label={`Play audio explanation for ${docTypeLabel(doc.document_type)}`}
               >
@@ -211,15 +208,12 @@ export function FamilyPage() {
   }, []);
 
   return (
-    <main
-      className="min-h-screen px-4 py-8 max-w-2xl mx-auto"
-      style={{ backgroundColor: "#FDFBF7" }}
-    >
+    <main className="min-h-screen px-4 py-8 max-w-2xl mx-auto bg-background">
       <header className="mb-8">
-        <h1 className="font-heading text-4xl text-[#2A1F1A] leading-tight mb-2">
+        <h1 className="font-heading text-4xl text-foreground leading-tight mb-2">
           Family Documents
         </h1>
-        <p className="text-[#6B5B52] text-lg">
+        <p className="text-muted-foreground text-lg">
           A clear record of every document your family has received.
         </p>
       </header>
