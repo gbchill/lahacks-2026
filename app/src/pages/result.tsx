@@ -1,11 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Phone, ArrowLeft, ArrowRight } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Phone, ArrowLeft, PhoneOff, Loader2, PhoneCall } from "lucide-react";
+import { Phone, ArrowLeft, ArrowRight, PhoneOff, Loader2, PhoneCall } from "lucide-react";
 import { DocumentPreview } from "@/components/document-preview";
 import { ExplanationCard } from "@/components/explanation-card";
 import { AudioPlayer } from "@/components/audio-player";
@@ -32,13 +28,6 @@ import {
   connectTranscript,
   type TranscriptMessage,
 } from "@/lib/calls-api";
-
-const LANGUAGE_NAMES: Record<string, string> = {
-  "zh-CN": "Chinese",
-  es: "Spanish",
-  vi: "Vietnamese",
-  ro: "Romanian",
-};
 
 type CallStatus = "idle" | "connecting" | "active" | "ended";
 
@@ -204,13 +193,6 @@ export function ResultPage() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-heading text-2xl">
-              {labels.callDialogTitle}
-            </DialogTitle>
-            <DialogDescription className="text-base">
-              {labels.callDialogBody(langName)}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter showCloseButton />
               Live translated call
             </DialogTitle>
             <DialogDescription className="text-base">
