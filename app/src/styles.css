@@ -1,0 +1,23 @@
+:root {
+  --translating-background: var(--background);
+  --translating-foreground: var(--foreground);
+  --translating-muted: var(--muted-foreground);
+  --translating-card: oklch(0.995 0.006 85 / 0.8);
+  --translating-card-border: oklch(0.929 0.013 255 / 0.6);
+  --translating-primary: var(--primary);
+  --translating-primary-soft: var(--primary-glow);
+  --translating-primary-strong: var(--primary-hover);
+  --translating-primary-surface: oklch(0.97 0.012 233);
+  --translating-panel: oklch(1 0 0 / 0.62);
+  --translating-icon-muted: oklch(1 0 0 / 0.82);
+  --translating-shimmer: oklch(1 0 0 / 0.72);
+  --translating-on-success: oklch(1 0 0);
+  --translating-success-surface: oklch(0.95 0.08 150);
+  --translating-success-border: oklch(0.85 0.12 150);
+  --translating-success-icon: oklch(0.75 0.18 150);
+  --translating-pending-surface: oklch(0.995 0.006 85 / 0.62);
+  --translating-pending-border: oklch(0.929 0.013 255 / 0.7);
+  --translating-shadow: oklch(0.5 0.08 60 / 0.35);
+  --translating-glow-cool: oklch(0.853 0.044 233 / 0.16);
+  --translating-glow-soft: oklch(0.9 0.03 233 / 0.18);
+}

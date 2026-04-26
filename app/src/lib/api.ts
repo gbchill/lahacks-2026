@@ -13,6 +13,7 @@ export type PipelineTiming = {
   translation: number | null;
   tts: number | null;
   audio_upload: number | null;
+  agent_pipeline?: number | null;
   total: number | null;
 };
 
@@ -62,7 +63,7 @@ export async function explainDocument(
   form.append("user_id", userId);
   form.append("target_language", targetLanguage);
 
-  const res = await fetch(`${BACKEND_URL}/documents/explain`, {
+  const res = await fetch(`${BACKEND_URL}/documents/explain-via-agents`, {
     method: "POST",
     body: form,
   });

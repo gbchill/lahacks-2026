@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
 import { CameraCard } from "@/components/camera-card";
-import { explainDocument } from "@/lib/api";
 import { useLanguage } from "@/contexts/language-context";
 import { getLabels } from "@/lib/menu-labels";
 
@@ -13,33 +10,16 @@ export function CapturePage() {
   const { code } = useLanguage();
   const labels = getLabels(code);
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     if (!file || !code) return;
-    setLoading(true);
-
-    try {
-      const response = await explainDocument(file, "demo-user-1", code);
-      navigate(`/result/${response.document_id}`, { state: response });
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Something went wrong";
-      const isRateLimit = message.includes("RESOURCE_EXHAUSTED") || message.includes("429");
-      const isOcr = message.includes("ocr");
-      toast.error(
-        isRateLimit ? labels.toastTooMany : labels.toastReadFailed,
-        {
-          description: isRateLimit
-            ? labels.toastTooManyDesc
-            : isOcr
-              ? labels.toastReadOcrDesc
-              : labels.toastTryAgain,
-        },
-      );
-    } finally {
-      setLoading(false);
-    }
+    navigate("/translating", {
+      state: {
+        file,
+        targetLanguage: code,
+        userId: "demo-user-1",
+      },
+    });
   };
 
   return (
@@ -62,19 +42,8 @@ export function CapturePage() {
         file={file}
         onPhotoCaptured={setFile}
         onContinue={handleContinue}
-        disabled={loading}
+        disabled={false}
       />
-
-      {loading && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-center justify-center gap-3 py-6 text-muted-foreground"
-        >
-          <Loader2 className="w-5 h-5 animate-spin" />
-          <span className="text-base">{labels.captureLoading}</span>
-        </motion.div>
-      )}
     </motion.div>
   );
 }
