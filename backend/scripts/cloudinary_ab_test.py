@@ -58,24 +58,31 @@ async def main():
         extract_text_from_image(enhanced_url),
     )
 
-    # Step 4: Compare
-    raw_score = word_quality_score(raw_ocr)
-    enhanced_score = word_quality_score(enhanced_ocr)
+    # Step 4: Compare — extract raw_text string from OCR result dicts
+    raw_text = raw_ocr.get("raw_text", "") if isinstance(raw_ocr, dict) else str(raw_ocr)
+    enhanced_text = enhanced_ocr.get("raw_text", "") if isinstance(enhanced_ocr, dict) else str(enhanced_ocr)
+    raw_confidence = raw_ocr.get("confidence", 0) if isinstance(raw_ocr, dict) else 0
+    enhanced_confidence = enhanced_ocr.get("confidence", 0) if isinstance(enhanced_ocr, dict) else 0
+
+    raw_score = word_quality_score(raw_text)
+    enhanced_score = word_quality_score(enhanced_text)
 
     print("\n" + "=" * 60)
     print("RESULTS")
     print("=" * 60)
-    print(f"\n--- RAW OCR ({len(raw_ocr)} chars, {raw_score}% word quality) ---")
-    print(raw_ocr[:500] + ("..." if len(raw_ocr) > 500 else ""))
-    print(f"\n--- ENHANCED OCR ({len(enhanced_ocr)} chars, {enhanced_score}% word quality) ---")
-    print(enhanced_ocr[:500] + ("..." if len(enhanced_ocr) > 500 else ""))
+    print(f"\n--- RAW OCR ({len(raw_text)} chars, {raw_score}% word quality, {raw_confidence:.0%} confidence) ---")
+    print(raw_text[:500] + ("..." if len(raw_text) > 500 else ""))
+    print(f"\n--- ENHANCED OCR ({len(enhanced_text)} chars, {enhanced_score}% word quality, {enhanced_confidence:.0%} confidence) ---")
+    print(enhanced_text[:500] + ("..." if len(enhanced_text) > 500 else ""))
     print("\n" + "=" * 60)
     print("SUMMARY")
     print("=" * 60)
-    print(f"  Raw:      {len(raw_ocr):>6} chars | {raw_score}% word quality")
-    print(f"  Enhanced: {len(enhanced_ocr):>6} chars | {enhanced_score}% word quality")
+    print(f"  Raw:      {len(raw_text):>6} chars | {raw_score}% word quality | {raw_confidence:.0%} Gemini confidence")
+    print(f"  Enhanced: {len(enhanced_text):>6} chars | {enhanced_score}% word quality | {enhanced_confidence:.0%} Gemini confidence")
     improvement = enhanced_score - raw_score
     print(f"  Improvement: {'+' if improvement >= 0 else ''}{improvement:.1f}% word quality")
+    print(f"  Raw confidence:      {raw_confidence:.0%}")
+    print(f"  Enhanced confidence: {enhanced_confidence:.0%}")
     print(f"\n  Cloudinary transformations applied:")
     print(f"    e_improve (auto contrast/exposure)")
     print(f"    e_sharpen:100 (text legibility)")
@@ -90,14 +97,16 @@ async def main():
         "image": os.path.basename(image_path),
         "raw_url": raw_url,
         "enhanced_url": enhanced_url,
-        "raw_ocr_chars": len(raw_ocr),
-        "enhanced_ocr_chars": len(enhanced_ocr),
+        "raw_ocr_chars": len(raw_text),
+        "enhanced_ocr_chars": len(enhanced_text),
         "raw_word_quality_pct": raw_score,
         "enhanced_word_quality_pct": enhanced_score,
+        "raw_confidence": raw_confidence,
+        "enhanced_confidence": enhanced_confidence,
         "improvement_pct": improvement,
         "transformations": ["e_improve", "e_sharpen:100", "a_auto_right", "e_grayscale", "q_auto:best", "f_auto"],
-        "raw_ocr_preview": raw_ocr[:300],
-        "enhanced_ocr_preview": enhanced_ocr[:300],
+        "raw_ocr_preview": raw_text[:300],
+        "enhanced_ocr_preview": enhanced_text[:300],
     }
     evidence_path = os.path.join(evidence_dir, "cloudinary-ab-results.json")
     with open(evidence_path, "w") as f:
